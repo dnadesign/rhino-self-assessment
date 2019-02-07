@@ -1,0 +1,62 @@
+---
+Name: businessinformation
+---
+
+BusinessInformation:  
+  Locations:
+    'Northland' : 'Northland'
+    'Auckland' : 'Auckland'
+    'Waikato' : 'Waikato'
+    'Bay of Plenty' : 'Bay of Plenty'
+    'Gisborne' : 'Gisborne'
+    'Hawkes Bay' : 'Hawkes Bay'
+    'Taranaki' : 'Taranaki'
+    'Manawatu-Whanganui' : 'Manawatu-Whanganui'
+    'Wellington' : 'Wellington'
+    'Tasman' : 'Tasman'
+    'Nelson' : 'Nelson'
+    'Marlborough' : 'Marlborough'
+    'West Coast' : 'West Coast'
+    'Canterbury' : 'Canterbury'
+    'Otago' : 'Otago'
+    'Southland' : 'Southland'
+    'Chatham Islands' : 'Chatham Islands'
+    'Not in New Zealand' : 'Not in New Zealand'
+  Industries:
+    'Accommodation and Food Services' : 'Accommodation and Food Services'
+    'Administrative and Support Services' : 'Administrative and Support Services'
+    'Agriculture, Forestry and Fishing' : 'Agriculture, Forestry and Fishing'
+    'Arts and Recreation Services' : 'Arts and Recreation Services'
+    'Construction' : 'Construction'
+    'Education and Training' : 'Education and Training'
+    'Electricity, Gas, Water and Waste Services' : 'Electricity, Gas, Water and Waste Services'
+    'Financial and Insurance Services' : 'Financial and Insurance Services'
+    'Health Care and Social Assistance' : 'Health Care and Social Assistance'
+    'Information Media and Telecommunications' : 'Information Media and Telecommunications'
+    'Manufacturing' : 'Manufacturing'
+    'Mining' : 'Mining'
+    'Other Services' : 'Other Services'
+    'Professional, Scientific and Technical Services' : 'Professional, Scientific and Technical Services'
+    'Public Administration and Safety' : 'Public Administration and Safety'
+    'Rental, Hiring and Real Estate Services' : 'Rental, Hiring and Real Estate Services'
+    'Retail Trade' : 'Retail Trade'
+    'Transport, Postal and Warehousing' : 'Transport, Postal and Warehousing'
+    'Wholesale Trade' : 'Wholesale Trade'
+  Employees:
+    'None' : 'None'
+    '1 to 2' : '1 to 2'
+    '3 to 4' : '3 to 4'
+    '5 to 9' : '5 to 9'
+    '10 to 14' : '10 to 14'
+    '15 to 20' : '15 to 20'
+    '20+' : '20+'
+  Ages:
+    'Planning stage' : 'Planning stage'
+    'Less than 1' : 'Less than 1 year'
+    '1-2 years' : '1-2 years'
+    '3-5 years' : '3-5 years'
+    '6-9 years' : '6-9 years'
+    '10+ years' : '10+ years'
+    'Not in business' : 'Not in business'
+
+

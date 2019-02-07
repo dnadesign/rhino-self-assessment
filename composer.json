@@ -1,0 +1,28 @@
+{
+	"name": "dnadesign/rhino-quiz",
+	"description": "SilverStripe module making use of Rhino (rhino-lite and rhino-fields) to scaffold a quiz",
+	"type": "silverstripe-module",
+	"keywords": [
+		"silverstripe",
+		"rest",
+		"api"
+	],
+	"require": {
+		"silverstripe/framework": "3.*",
+		"dnadesign/rhino-lite": "dev-master",
+		"dnadesign/rhino-fields": "dev-master"
+	},
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/dnadesign/rhino-lite.git"
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/dnadesign/rhino-fields.git"
+		}
+	],
+	"extra": {
+		"installer-name": "rhino-quiz"
+	}
+}

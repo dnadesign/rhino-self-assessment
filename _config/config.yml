@@ -1,0 +1,19 @@
+---
+Name: selfassessment
+After:
+  - 'framework/*'
+  - 'cms/*'
+  - 'rhino#extensions'
+  - 'appextensions'
+  - 'translatable-extensions'
+---
+
+SelfAssessment:
+  extensions:
+    - RhinoAssessmentExtension
+  allowed_field_types:
+    - SelfAssessmentQuestion
+
+SelfAssessmentReport:
+  extensions:
+    - SelfAssessmentReportExtension

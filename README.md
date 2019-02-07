@@ -15,5 +15,5 @@ SilverStripe module making use of Rhino (rhino-lite and rhino-fields) to scaffol
 	    - ElementSelfAssessment
 	    
 	SiteConfig:
-	  fromemail:
-		- info@cert.govt.nz
+	  selfassessment_email_from:
+		- info@website.com

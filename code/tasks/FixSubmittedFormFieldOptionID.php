@@ -25,6 +25,4 @@ class FixSubmittedFormFieldOptionID extends BuildTask {
 
 		echo 'Done!';
 	}
-
-
 }

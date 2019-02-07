@@ -92,7 +92,7 @@ class CreateSelfAssessmentReportJob extends AbstractQueuedJob implements QueuedJ
 			}
 		} else {
 			$this->addMessage('File already exists!', 'WARNING');
-			$this->remainingChildren = array();
+			$this->remainingChildren = [];
 			$this->isComplete = true;
 		}
 

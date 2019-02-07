@@ -89,7 +89,7 @@ class ResultTheme extends DataObject {
 
 		if (!$submission) user_error('Controller is unable to retrieve submission. Check method getSubmission() is present.');
 
-		$collection = array();
+		$collection = [];
 						
 		$options = EditableSelfAssessmentOption::get()
 					// Get all the options which parent question are in this theme

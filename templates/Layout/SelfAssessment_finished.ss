@@ -1,9 +1,6 @@
 <div class="self-assessment panel panel--spacing">
-	<div class="container">
-		<% include CommonHeader Title=$ResultPageTitle, SocialOn=1 %>
-	</div>
 
-	<div class="self-assessment-results<% if HasEmailedResults %> self-assessment--saved<% end_if %>">
+	<div class="self-assessment-results<% if $HasEmailedResults %> self-assessment--saved<% end_if %>">
 		<div class="container">
 			<div class="pure-g">
 				<div class="pure-u-1 pure-u-md-4-24"></div>
@@ -32,12 +29,12 @@
 			<div class="pure-g">
 				<div class="pure-u-1 pure-u-md-4-24">&nbsp;</div>
 				<div class="pure-u-1 pure-u-md-16-24">
-					<% loop ResultThemes %>
+					<% loop $ResultThemes %>
 						<div class="self-assessment-card self-assessment-card--theme">
 							<h2 class="self-assessment-theme-title">$Title</h2>
 
 							<div class="self-assessment-theme-content">
-								<% loop AdviceForCurrentSubmission %>
+								<% loop $AdviceForCurrentSubmission %>
 									<div class="self-assessment-theme-advice">
 										<div class="self-assessment-rating">
 											<% include Rating Rating=$Rating %>

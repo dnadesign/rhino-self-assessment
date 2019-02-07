@@ -7,21 +7,9 @@ class ElementSelfAssessment extends ElementUserDefinedForm
 {
     private static $title = "Self Assessment Element";
 
-	private static $db = array(
-		'HTML' => 'HTMLText',
-	);
-
-	private static $field_labels = array(
-		'HTML' => 'Content'
-    );
-    
     private static $enable_title_in_template = true;
 
-    private static $defaults = array(
-        'ElementSocialOn' => '1'
-    );
-
-    public function ElementForm()
+	public function ElementForm()
     {
         if ($this->Form()->exists()) {
             $controller = new SelfAssessment_Controller($this->Form());

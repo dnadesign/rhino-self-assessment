@@ -12,10 +12,4 @@ class SelfAssessmentReportExtension extends DataExtension {
 		$saveAndClose = $actions->fieldByName('action_doSaveAndQuit');
 		$saveAndClose->setButtonContent('Request Report');
 	}
-
-	// No need to the buttons at the top right
-	public function updateBetterButtonsUtils(&$buttons) {
-		$buttons = new FieldList(array());
-	}
-
 }

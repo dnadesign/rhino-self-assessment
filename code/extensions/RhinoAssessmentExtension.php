@@ -3,7 +3,7 @@
 /**
 * Rhino Assessment is the base of the self assessment tool
 */
-class RhinoAssessmentExtension extends DataExtension {
+class SelfAssessmentExtension extends DataExtension {
 
 	/**
 	* RhinoAssessment are pages, that will be later included via an element
@@ -32,10 +32,10 @@ class RhinoAssessmentExtension extends DataExtension {
  			'Tags',
  			'SearchKeywords',
  			'Recipients',
- 			// 'FormOptions',
  			'Translations',
  			'warnemail',
- 			'MenuTitle'
+ 			'MenuTitle',
+			'Content'
 		));
 
 		$formFields = $fields->fieldByName('Root.FormFields.Fields');
@@ -54,9 +54,6 @@ class RhinoAssessmentExtension extends DataExtension {
 		$elementWarning = LiteralField::create('elementwarning', '<p class="message good">The following elements will appear at the bottom of the result page only.');
 
 		$fields->addFieldToTab('Root.ResultScreenElements', $elementWarning);
-
-		$elements = $fields->fieldByName('Root.Main.ElementArea');
-		$fields->addFieldToTab('Root.ResultScreenElements', $elements);
 
 		// Add DeleteTestData action to submission
 		$submissions = $fields->fieldByName('Root.Submissions.Submissions');

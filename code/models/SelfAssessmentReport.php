@@ -192,8 +192,10 @@ class SelfAssessmentReport extends DataObject {
 		$file = $this->File();
 		$subject = $this->Assessment()->Title.' report is ready!';
 
+		$fromEmail = Config::inst()->get('SiteConfig', 'selfassessment_email_from');
+
 		$email = new Email();
-		$email->setFrom('info@business.govt.nz');
+		$email->setFrom($fromEmail);
 		$email->setTo($to);
 		$email->setSubject($subject);
 		$email->setBody(sprintf('The report for %s is ready. <a href="%s">Click here</a> to download it.', $this->Assessment()->Title, $this->File()->AbsoluteLink()));

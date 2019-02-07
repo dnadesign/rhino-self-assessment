@@ -10,7 +10,7 @@ After:
 
 SelfAssessment:
   extensions:
-    - RhinoAssessmentExtension
+    - SelfAssessmentExtension
   allowed_field_types:
     - SelfAssessmentQuestion
 

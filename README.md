@@ -17,3 +17,11 @@ SilverStripe module making use of Rhino (rhino-lite and rhino-fields) to scaffol
 	SiteConfig:
 	  selfassessment_email_from:
 		- info@website.com
+
+## Example code
+
+Suggest copying these files to the project, modify as needed, then include in the build process.
+
+ - src/js (interaction )
+ - src/scss (basic styling and transitions)
+ - images/svg

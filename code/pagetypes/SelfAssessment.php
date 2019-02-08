@@ -48,9 +48,8 @@ class SelfAssessment extends RhinoAssessment  {
 
 		// Note: the newsletter list is set up as part of the UserDefinedForm extension
 		$apiKey = SiteConfig::current_site_config()->CampaignMonitorAPIKey;
-		$source = SiteConfig::current_site_config()->CampaignMonitorDefaultSource;
 
-		if($apiKey) {
+		if ($apiKey) {
 			$notificationTitle = HeaderField::create('Business Email Notification');
 			$fields->addFieldToTab('Root.CampaignMonitor', $notificationTitle);
 
@@ -72,7 +71,7 @@ class SelfAssessment extends RhinoAssessment  {
 			$fields->addFieldToTab('Root.CampaignMonitor', $notificationListLabel);
 
 		} else {
-			$fields->addFieldToTab('Root.Main', LiteralField::create('warn', '<p class="message notice">Please set an api key in the site config for CampaignMonitor.</p>'));
+			$fields->addFieldToTab('Root.Main', LiteralField::create('warn', '<p class="message notice">To use CampaignMonitor, please set an api key in the admin settings.</p>'));
 		}
 
 		// Reports
@@ -221,27 +220,6 @@ class SelfAssessment_Controller extends RhinoAssessment_Controller {
 
         return $area;
     }
-
-    /**
-    * Supplies the dropdown for the Business Screen step
-    *
-    * @return FieldList
-    */
-    public function getBusinessInformationFields() {
-    	$locations = Config::inst()->get('BusinessInformation', 'Locations');
-    	$industries = Config::inst()->get('BusinessInformation', 'Industries');
-    	$employees = Config::inst()->get('BusinessInformation', 'Employees');
-    	$ages = Config::inst()->get('BusinessInformation', 'Ages');
-
-		$list = FieldList::create(
-			DropdownField::create('Location', 'Where is your business based?', $locations)->setEmptyString('Please select...')->setAttribute('required', 'required'),
-			DropdownField::create('Industry', 'Which of these best describes your industry?', $industries)->setEmptyString('Please select...')->setAttribute('required', 'required'),
-			DropdownField::create('Employees', 'How many employes do you have?', $employees)->setEmptyString('Please select...')->setAttribute('required', 'required'),
-			DropdownField::create('Age', 'How old is your business?', $ages)->setEmptyString('Please select...')->setAttribute('required', 'required')
-		);
-
-		return $list;
-	}
 
 	/**
 	* If a user has emailed himself the link,

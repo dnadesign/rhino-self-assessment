@@ -8,12 +8,6 @@
 
 <div class="self-assessment-actions-column">
 	<div class="self-assessment-businfofields">
-		<div>
-			<% loop $Top.Controller.BusinessInformationFields %>
-				$FieldHolder
-			<% end_loop %>
-		</div>
-
 		<button type="submit" class="pure-button self-assessment-button" data-self-assessment-results-button data-self-assessment-title="$Top.Controller.Title">
 			<% if $Top.Controller.SubmitButtonText %>
 				$Top.Controller.SubmitButtonText

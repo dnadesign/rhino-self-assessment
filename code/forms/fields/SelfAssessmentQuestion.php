@@ -57,7 +57,9 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField {
 
 		$field->setFieldHolderTemplate('SelfAssessmentQuestion_holder');
 		$field->setTemplate('SelfAssessmentQuestion');
+
 		$field->customise(array(
+			'Image' => $this->Image(),
 			'TidbitTitle' => $this->TidbitTitle,
 			'Tidbit' => $this->Tidbit, 
 			'TidbitImage' => $this->TidbitImage(),

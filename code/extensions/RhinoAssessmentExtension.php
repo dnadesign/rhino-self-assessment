@@ -47,14 +47,6 @@ class SelfAssessmentExtension extends DataExtension {
 		$formFieldsConfig->removeComponent($adders->pop()); // First remove Firl Group
 		$formFieldsConfig->removeComponent($adders->pop()); // Then remove Page break
 
-		/**
-		* Element area is used on the result page
-		* to display the feedback element
-		*/
-		$elementWarning = LiteralField::create('elementwarning', '<p class="message good">The following elements will appear at the bottom of the result page only.');
-
-		$fields->addFieldToTab('Root.ResultScreenElements', $elementWarning);
-
 		// Add DeleteTestData action to submission
 		$submissions = $fields->fieldByName('Root.Submissions.Submissions');
 		$config = $submissions->getConfig();

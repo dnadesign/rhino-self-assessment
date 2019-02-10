@@ -39,10 +39,10 @@
 										<div class="self-assessment-rating">
 											<% include Rating Rating=$Rating %>
 										</div>
-										
-										$Advice
+										<p>$Question</p>
 
-									</div>
+										$Advice
+$Brand									</div>
 								<% end_loop %>
 							</div>
 						</div>
@@ -73,7 +73,7 @@
 		<div class="container">
 			<div class="pure-g">
 				<div class="pure-u-1 pure-u-md-16-24 pure-push-md-4-24 pure-u-lg-14-24 pure-push-lg-5-24">
-				
+
 					<div class="modal-dialog" role="document">
 
 						<div class="modal-content">
@@ -82,12 +82,12 @@
 							<div class="modal-header">
 								<h3 class="modal-title">$EmailModalTitle</h3>
 							</div>
-							
+
 							<div class="modal-body" tabindex="0">
 								$EmailModalContent
 								$EmailSignupForm
 							</div>
-							
+
 							<div class="modal-footer">
 								<a href="#" data-dismiss="modal">cancel</a>
 							</div>

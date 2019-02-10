@@ -1,9 +1,9 @@
 <div class="self-assessment-actions-column">
 	<h2 class="self-assessment-actions-title">
-		$Top.Controller.BusinessScreenTitle
+		$Top.Controller.FinalScreenTitle
 	</h2>
 
-	$Top.Controller.BusinessScreenContent
+	$Top.Controller.FinalScreenContent
 </div>
 
 <div class="self-assessment-actions-column">

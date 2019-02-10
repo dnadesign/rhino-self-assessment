@@ -14,8 +14,8 @@ class SelfAssessment extends RhinoAssessment  {
 		'StartTitle' => 'Text',
 		'StartContent' => 'HTMLText',
 		'EstimatedTime' => 'Varchar(255)',
-		'BusinessScreenTitle' => 'Text',
-		'BusinessScreenContent' => 'HTMLText',
+		'FinalScreenTitle' => 'Text',
+		'FinalScreenContent' => 'HTMLText',
 		'ResultTitle' => 'VArchar(255)',
 		'ResultIntro' => 'HTMLText',
 		'ResultEmailText' => 'HTMLText',
@@ -97,10 +97,10 @@ class SelfAssessment extends RhinoAssessment  {
 		$image->getValidator()->setAllowedMaxFileSize('2M');
 		$fields->addFieldToTab('Root.StartScreen', $image, 'StartContent');
 
-		// Business Screen Intro
-		$businessTitle = Textfield::create('BusinessScreenTitle', 'Title');
-		$businessContent = HTMLEditorField::create('BusinessScreenContent', 'Content');
-		$fields->addFieldsToTab('Root.BusinessScreen', array($businessTitle, $businessContent));
+		// Final Screen Intro
+		$businessTitle = Textfield::create('FinalScreenTitle', 'Title');
+		$businessContent = HTMLEditorField::create('FinalScreenContent', 'Content');
+		$fields->addFieldsToTab('Root.FinalScreen', array($businessTitle, $businessContent));
 		
 		// Results + Themes
 		$resultTitle = TextField::create('ResultTitle')->setRightTitle('Defaults to '.sprintf('My %s Results', ucwords($this->Title)));
@@ -244,7 +244,7 @@ class SelfAssessment_Controller extends RhinoAssessment_Controller {
 	public function EmailSignupForm() {
 		$fields = new FieldList(array(
 			$email = EmailField::create('Email', '')->setAttribute('placeholder', 'Enter your email address'),
-			$newsletter = CheckboxField::create('SignUpForNewsletter', 'Keep up to date with changes that affect your business. Sign up to the Business.govt.nz monthly newsletter.', '1'),
+			$newsletter = CheckboxField::create('SignUpForNewsletter', 'Keep up to date with changes that affect your business. Sign up to the monthly newsletter.', '1'),
 			$redirect = HiddenField::create('RedirectURL', 'RedirectURL')
 		));
 

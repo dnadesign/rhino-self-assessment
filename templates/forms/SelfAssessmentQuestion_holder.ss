@@ -34,6 +34,11 @@
 					</div>
 					
 					<div class="pure-u-1 pure-u-lg-1-2">
+
+						<div class="self-assessment-image">
+							$Image
+						</div>
+
 						<div class="self-assessment-question-options">
 							$Field
 							<button type="button" class="pure-button self-assessment-button self-assessment-button--block" data-self-assessment-submit-button>Submit</button>

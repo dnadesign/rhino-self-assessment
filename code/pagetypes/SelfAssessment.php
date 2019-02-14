@@ -14,8 +14,6 @@ class SelfAssessment extends RhinoAssessment  {
 		'StartTitle' => 'Text',
 		'StartContent' => 'HTMLText',
 		'EstimatedTime' => 'Varchar(255)',
-		'FinalScreenTitle' => 'Text',
-		'FinalScreenContent' => 'HTMLText',
 		'ResultTitle' => 'VArchar(255)',
 		'ResultIntro' => 'HTMLText',
 		'ResultEmailText' => 'HTMLText',
@@ -29,7 +27,7 @@ class SelfAssessment extends RhinoAssessment  {
 	);
 
 	private static $has_one = array(
-		'Image' => 'File'
+		'Image' => 'Image'
 	);
 	
 	private static $has_many = array(
@@ -92,15 +90,10 @@ class SelfAssessment extends RhinoAssessment  {
 		$fields->addFieldsToTab('Root.StartScreen', array($title, $content, $time));
 
 		// Image
-		$image = UploadField::create('Image', 'Image')->setDescription('Square ratio. SVG recommended. Minimum size 300x300px. Appears on both Start and Result screen.');
+		$image = UploadField::create('Image', 'Image')->setDescription('Square ratio. SVG recommended. Minimum size 300x300px.');
 		$image->setAllowedExtensions(array('svg', 'jpg', 'jpeg', 'png'));
 		$image->getValidator()->setAllowedMaxFileSize('2M');
 		$fields->addFieldToTab('Root.StartScreen', $image, 'StartContent');
-
-		// Final Screen Intro
-		$businessTitle = Textfield::create('FinalScreenTitle', 'Title');
-		$businessContent = HTMLEditorField::create('FinalScreenContent', 'Content');
-		$fields->addFieldsToTab('Root.FinalScreen', array($businessTitle, $businessContent));
 		
 		// Results + Themes
 		$resultTitle = TextField::create('ResultTitle')->setRightTitle('Defaults to '.sprintf('My %s Results', ucwords($this->Title)));
@@ -135,6 +128,10 @@ class SelfAssessment extends RhinoAssessment  {
 			 $resultEmailText
 		));
 
+		$content->setRows(20);
+		$finalContent->setRows(20);
+		$resultIntro->setRows(25);
+
 		return $fields;
 	}
 
@@ -143,11 +140,11 @@ class SelfAssessment extends RhinoAssessment  {
 	}
 
 	public function TotalQuestionCount() {
+
 		$count = $this->getQuestions()->Count();
 		// Add the Business Information step
 		return $count + 1;
 	}
-
 }
 
 class SelfAssessment_Controller extends RhinoAssessment_Controller {

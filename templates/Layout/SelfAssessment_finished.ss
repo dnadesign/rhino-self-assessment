@@ -14,13 +14,6 @@
 						</div>
 
 						<div class="pure-u-md-1-2">
-							<div class="self-assessment-results-image">
-								<% if $Image %>
-									<img src="$Image.URL" alt="$Image.Title" />
-								<% else %>
-									&nbsp;
-								<% end_if %>
-							</div>
 						</div>
 					</div>
 				</div>
@@ -42,7 +35,8 @@
 										<p>$Question</p>
 
 										$Advice
-$Brand									</div>
+
+									</div>
 								<% end_loop %>
 							</div>
 						</div>

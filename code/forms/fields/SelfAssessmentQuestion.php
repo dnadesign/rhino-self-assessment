@@ -64,7 +64,8 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField {
 			'Tidbit' => $this->Tidbit, 
 			'TidbitImage' => $this->TidbitImage(),
 			'ResultTheme' => $this->ResultTheme(),
-			'SelfAssessmentTitle' => $this->Parent()->Title
+			'SelfAssessmentTitle' => $this->Parent()->Title,
+			'TotalQuestionCount' => $this->Parent()->TotalQuestionCount()
 		));
 	
 		return $field;

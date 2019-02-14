@@ -129,7 +129,6 @@ class SelfAssessment extends RhinoAssessment  {
 		));
 
 		$content->setRows(20);
-		$finalContent->setRows(20);
 		$resultIntro->setRows(25);
 
 		return $fields;

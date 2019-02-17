@@ -9,6 +9,8 @@ class ElementSelfAssessment extends ElementUserDefinedForm
 
     private static $enable_title_in_template = true;
 
+    private static $exclude_from_content = true;
+
 	public function ElementForm()
     {
         if ($this->Form()->exists()) {

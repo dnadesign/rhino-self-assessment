@@ -29,7 +29,7 @@ class SelfAssessment extends RhinoAssessment  {
 	private static $has_one = array(
 		'Image' => 'Image'
 	);
-	
+
 	private static $has_many = array(
 		'ResultThemes' => 'ResultTheme',
 		'Reports' => 'SelfAssessmentReport'
@@ -94,14 +94,14 @@ class SelfAssessment extends RhinoAssessment  {
 		$image->setAllowedExtensions(array('svg', 'jpg', 'jpeg', 'png'));
 		$image->getValidator()->setAllowedMaxFileSize('2M');
 		$fields->addFieldToTab('Root.StartScreen', $image, 'StartContent');
-		
+
 		// Results + Themes
 		$resultTitle = TextField::create('ResultTitle')->setRightTitle('Defaults to '.sprintf('My %s Results', ucwords($this->Title)));
 		$resultIntro =  HTMLEditorField::create('ResultIntro', 'Result Introduction');
 		$fields->addFieldsToTab('Root.ResultScreen', array($resultTitle, $resultIntro));
 
 		$config = GridfieldConfig_RecordEditor::create();
-		
+
 		// Allow to sort the questions
 		$config->addComponent(new GridFieldOrderableRows('Sort'));
 		$gridfield = GridField::create('ResultThemes', 'Result Themes', $this->ResultThemes(), $config);
@@ -112,7 +112,7 @@ class SelfAssessment extends RhinoAssessment  {
 		$modalTitle = TextField::create('EmailModalTitle');
 		$modalText = HTMLEditorField::create('EmailModalContent');
 
-		// Result Email Reminder 
+		// Result Email Reminder
 		// This is the text for the modal that shows up when a user click on a link
 		// before he has emailed the result page
 		$modalTitle2 = TextField::create('EmailReminderModalTitle');
@@ -123,9 +123,9 @@ class SelfAssessment extends RhinoAssessment  {
 		$resultEmailText->setDescription('Content of the email sent alongside the link to the result page.');
 
 		$fields->addFieldsToTab('Root.ResultEmail', array(
-			ToggleCompositeField::create('Regular', 'Content of the modal window when clicking on "Save my results"', array($modalTitle, $modalText)),
-			 ToggleCompositeField::create('Reminder', 'Content of the modal window when navigating away from the result page', array($modalTitle2, $modalText2)),
-			 $resultEmailText
+			ToggleCompositeField::create('Regular', 'Content of the modal window', array($modalTitle, $modalText)),
+			ToggleCompositeField::create('Reminder', 'Content of the modal window when navigating away from the result page', array($modalTitle2, $modalText2)),
+			$resultEmailText
 		));
 
 		$content->setRows(20);
@@ -172,7 +172,7 @@ class SelfAssessment_Controller extends RhinoAssessment_Controller {
 				return $this->redirect(Controller::join_links($page->AbsoluteLink(), '#e'.$element->ID));
 			}
 		}
-		
+
 		return $this->httpError(404);
 	}
 
@@ -226,7 +226,7 @@ class SelfAssessment_Controller extends RhinoAssessment_Controller {
 		if ($submission && $submission->exists() && $submission->UserEmail !== null) {
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -256,11 +256,11 @@ class SelfAssessment_Controller extends RhinoAssessment_Controller {
 		if ($submission && $submission->exists()) {
 			$fields->push(HiddenField::create('SubmissionUID', 'SubmissionUID', $submission->uid));
 		}
-		
+
 		$actions = new FieldList(array(
 			FormAction::create('processEmailSignup', 'Email me a link')->setUseButtonTag(true)->addExtraClass('pure-button self-assessment-button')
 		));
-		
+
 		$required = new RequiredFields(array('Email'));
 
 		$form = new Form($this, 'EmailSignupForm', $fields, $actions, $required);
@@ -312,7 +312,7 @@ class SelfAssessment_Controller extends RhinoAssessment_Controller {
 			'utm_medium' => 'email',
 			'utm_campaign' => 'self-assessment tool'
 		), null, '&', PHP_QUERY_RFC3986);
-		
+
 		$link = $submission->getLink() . '?' . $utm_parameters;
 		$config = SiteConfig::current_site_config();
 
@@ -323,7 +323,7 @@ class SelfAssessment_Controller extends RhinoAssessment_Controller {
 		$email->setTemplate('SelfAssessmentEmail');
 
 		$data = array(
-			'Link' => $link, 
+			'Link' => $link,
 			'Title' => $this->data()->getResultPageTitle(),
 			'Text' => $this->data()->ResultEmailText,
 		);
@@ -372,8 +372,8 @@ class SelfAssessment_Controller extends RhinoAssessment_Controller {
 		$apiKey = SiteConfig::current_site_config()->CampaignMonitorAPIKey;
 		$resources = new CMResources($apiKey);
 
-		if($resources 
-			&& $this->CMDefaultList 
+		if($resources
+			&& $this->CMDefaultList
 			&& $list = $resources->getList($this->CMDefaultList)
 		){
 			// Create subscriber
@@ -396,8 +396,8 @@ class SelfAssessment_Controller extends RhinoAssessment_Controller {
 		$apiKey = SiteConfig::current_site_config()->CampaignMonitorAPIKey;
 		$resources = new CMResources($apiKey);
 
-		if($resources 
-			&& $this->CMNotificationList 
+		if($resources
+			&& $this->CMNotificationList
 			&& $list = $resources->getList($this->CMNotificationList)
 		){
 			// Create subscriber

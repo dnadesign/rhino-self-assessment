@@ -52,6 +52,13 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField {
 		return $fields;
 	}
 
+  public function getCMSValidator()
+  {
+    $validator = parent::getCMSValidator();
+    $validator->addRequiredField('Title');
+    return $validator;
+  }
+
 	public function getFormField() {
 		$field = parent::getFormField();
 
@@ -61,13 +68,13 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField {
 		$field->customise(array(
 			'Image' => $this->Image(),
 			'TidbitTitle' => $this->TidbitTitle,
-			'Tidbit' => $this->Tidbit, 
+			'Tidbit' => $this->Tidbit,
 			'TidbitImage' => $this->TidbitImage(),
 			'ResultTheme' => $this->ResultTheme(),
 			'SelfAssessmentTitle' => $this->Parent()->Title,
 			'TotalQuestionCount' => $this->Parent()->TotalQuestionCount()
 		));
-	
+
 		return $field;
 	}
 
@@ -81,7 +88,7 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField {
 		}
 		return null;
 	}
-	
+
 	/**
 	* Return the rating from a submittedFormField
 	*/

@@ -128,6 +128,19 @@ class SelfAssessment extends RhinoAssessment  {
 			$resultEmailText
 		));
 
+		$formfields = $fields->dataFieldByName('Fields');
+		$config = $formfields->getConfig();
+		$editableColumns = $config->getComponentByType('GridFieldEditableColumns');
+		$columns = $editableColumns->getDisplayFields($formfields);
+		if (isset($columns['Title'])) {
+				$columns['Title'] = function ($record, $column, $grid) {
+						if ($record instanceof EditableFormField) {
+								return $record->getInlineTitleField($column)->performReadOnlyTransformation();
+						}
+				};
+		}
+		$editableColumns->setDisplayFields($columns);
+
 		$content->setRows(20);
 		$resultIntro->setRows(25);
 

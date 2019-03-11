@@ -7,7 +7,7 @@
 </head>
 <body bgcolor="#d7eaf3" style="text-align:center">
 	<div style="display: inline-block; max-width: 600px; ">
-		<table border="0" cellpadding="20" cellspacing="0" bgcolor="#FFF" width:"100%" >
+		<table border="0" cellpadding="20" cellspacing="0" bgcolor="#FFF" width="100%" >
 			<tbody>
 				<tr>
 					<td align="right">

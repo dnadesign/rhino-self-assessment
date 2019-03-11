@@ -147,8 +147,8 @@ class SelfAssessment extends RhinoAssessment  {
 		return $fields;
 	}
 
-	public function getResultPageTitle() {
-		return ($this->ResultTitle) ? $this->ResultTitle : sprintf('My %s Results', ucwords($this->Title));
+	public function getResultPageTitle(){
+		return sprintf('My %s Results', ucwords($this->Title));
 	}
 
 	public function TotalQuestionCount() {

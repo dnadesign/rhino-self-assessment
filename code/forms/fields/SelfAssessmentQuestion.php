@@ -52,12 +52,15 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField {
 		return $fields;
 	}
 
-  public function getCMSValidator()
-  {
-    $validator = parent::getCMSValidator();
-    $validator->addRequiredField('Title');
-    return $validator;
-  }
+	/**
+	* A question without a question is not a question
+	* so make title required
+	*/
+	public function getCMSValidator() {
+		$validator = parent::getCMSValidator();
+		$validator->addRequiredField('Title');
+		return $validator;
+	}
 
 	public function getFormField() {
 		$field = parent::getFormField();

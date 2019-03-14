@@ -128,16 +128,20 @@ class SelfAssessment extends RhinoAssessment  {
 			$resultEmailText
 		));
 
+		/**
+		* Do not allow for inline editing of the title
+		* to offer better userflow, since all titles should be required
+		*/
 		$formfields = $fields->dataFieldByName('Fields');
 		$config = $formfields->getConfig();
 		$editableColumns = $config->getComponentByType('GridFieldEditableColumns');
 		$columns = $editableColumns->getDisplayFields($formfields);
 		if (isset($columns['Title'])) {
-				$columns['Title'] = function ($record, $column, $grid) {
-						if ($record instanceof EditableFormField) {
-								return $record->getInlineTitleField($column)->performReadOnlyTransformation();
-						}
-				};
+			$columns['Title'] = function ($record, $column, $grid) {
+				if ($record instanceof EditableFormField) {
+					return $record->getInlineTitleField($column)->performReadOnlyTransformation();
+				}
+			};
 		}
 		$editableColumns->setDisplayFields($columns);
 

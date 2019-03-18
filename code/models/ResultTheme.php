@@ -73,9 +73,7 @@ class ResultTheme extends DataObject {
 	}
 
 	/**
-	* Look up the submission from the URL UID
-	* and return a collection of advice for each questions
-	* present in this theme
+	* Look up the submission from the URL UID and return a collection of advice for each questions present in this theme
 	*
 	* @return ArrayList
 	*/
@@ -95,7 +93,7 @@ class ResultTheme extends DataObject {
 					// Get all the options which parent question are in this theme
 					// And which value has been submitted by user
 					->filter(array('ParentID' => $this->Questions()->column('ID'), 'ID' =>  $submission->Values()->column('ParentOptionID')))
-					// Exlcude options that do not have an advice
+					// Exclude options that do not have an advice
 					->exclude(array('Advice' => ''))
 					// Sort by Star Rating
 					->sort('Rating ASC');

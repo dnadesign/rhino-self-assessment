@@ -30,5 +30,4 @@ class EditableSelfAssessmentOption extends EditableMultiChoiceOption {
 	public function getCMSValidator(){
 		return new RequiredFields(array('Value', 'Rating'));
 	}
-
 }

@@ -70,15 +70,12 @@ class CreateSelfAssessmentReportJob extends AbstractQueuedJob implements QueuedJ
 			'Tool Title',
 			'Date Completed',
 			'UID',
-			'Industry',
-			'Location',
-			'Employee Number',
-			'Age',
 			'Question',
 			'Answer',
 			'Advice',
 			'Rating',
-			'Theme'
+			'Theme',
+			'UserEmail'
 		);
 
 		// If file does not exists yet, create it and add the csv headers
@@ -142,15 +139,12 @@ class CreateSelfAssessmentReportJob extends AbstractQueuedJob implements QueuedJ
 				$assessment->Title,
 				$submission->Created,
 				$submission->uid,
-				$submission->Industry,
-				$submission->Location,
-				$submission->Employees,
-				$submission->Age,
 				$question->Title,
 				$answer->Value,
 				($question->hasMethod('getAdviceForAnswer')) ? $question->getAdviceForAnswer($answer) : '',
 				($question->hasMethod('getRatingForAnswer')) ? $question->getRatingForAnswer($answer) : '',
-				($question->ResultThemeID) ? $question->ResultTheme()->Title : ''				
+				($question->ResultThemeID) ? $question->ResultTheme()->Title : '',
+				$submission->UserEmail
 			);
 
 			if ($file = fopen($this->csvFilename, 'a')) {

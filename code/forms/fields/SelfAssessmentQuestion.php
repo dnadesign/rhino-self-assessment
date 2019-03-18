@@ -32,13 +32,15 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField {
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 
-		$fields->removeByName('RightTitle');
-		$fields->removeByName('ExtraClass');
-		$fields->removeByName('DisplayRules');
-		$fields->removeByName('CustomErrorMessage');
-		$fields->removeByName('ShowInSummary');
-		$fields->removeByName('warning');
-		$fields->removeByName('Validation');
+		$fields->removeByName([
+			'RightTitle',
+			'ExtraClass',
+			'DisplayRules',
+			'CustomErrorMessage',
+			'ShowInSummary',
+			'warning',
+			'Validation'
+		]);
 
 		$tidbitTitle = TextField::create('TidbitTitle')->setRightTitle('eg: Did you know...');
 		$tidbit = HTMLEditorField::create('Tidbit', 'Tidbit');

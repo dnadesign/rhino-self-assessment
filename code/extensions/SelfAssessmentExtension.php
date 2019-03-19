@@ -43,8 +43,15 @@ class SelfAssessmentExtension extends DataExtension
 		$fields->removeByName('FormFields');
 		$fields->addFieldsToTab('Root.Main', [$formFields, $submitButtonText]);
 
-		$formFieldsConfig = $formFields->getConfig();
+		$this->owner->modifyGridfield($formFields->getConfig());
 
+		// Add DeleteTestData action to submission
+		$submissions = $fields->fieldByName('Root.Submissions.Submissions');
+		$config = $submissions->getConfig();
+		$config->addComponent(new GridFieldRequestDeleteTestData());
+ 	}
+
+ 	public function modifyGridfield($formFieldsConfig) {
 		// Remove Field Group and Page break button
 		$adders = $formFieldsConfig->getComponentsByType('GridFieldAddClassesButton')
 			->filterByCallBack(function ($item) {
@@ -69,28 +76,26 @@ class SelfAssessmentExtension extends DataExtension
 		foreach ($adders->toArray() as $component) {
 			$formFieldsConfig->addComponent($component);
 		}
-
-		// Add DeleteTestData action to submission
-		$submissions = $fields->fieldByName('Root.Submissions.Submissions');
-		$config = $submissions->getConfig();
-		$config->addComponent(new GridFieldRequestDeleteTestData());
 	}
 
 	/**
 	 * We don't want to be able to save a SelfAssesment which contains questions without a title Title field is required
 	 * on SelfAssessmentQuestion but because of inline editing, it is possible to save the page with blank question
 	 */
-	public function validate(ValidationResult $result)
-	{
-		// Look for fields without a title
-		$blankFields = $this->owner->Fields()->filter('Title', null)->Count();
-		if ($blankFields > 0) {
-			$result->error("Please add missing $blankFields  \"Titles\" to all the questions.", 'validation');
+	public function validate(ValidationResult $result) {
+		if ($this->owner->isInDB()) {
 
-			// TODO: add error message on the form itself
-			// Currently doesn't work, only shows the ajax validation popup
-			// $validator = Controller::curr()->getEditForm();
-			// $validator->setMessage('Please add "TItles" to all the questions', 'error');
+			// Look for fields without a title
+			$blankFields = $this->owner->Fields()->where('Title IS NULL')->Count();
+
+			if ($blankFields > 0) {
+				$result->error("Please add missing $blankFields  \"Titles\" to all the questions.", 'validation');
+
+				// TODO: add error message on the form itself
+				// Currently doesn't work, only shows the ajax validation popup
+				// $validator = Controller::curr()->getEditForm();
+				// $validator->setMessage('Please add "TItles" to all the questions', 'error');
+			}
 		}
 
 		return $result;

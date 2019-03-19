@@ -25,7 +25,7 @@
 		</div>
 	<% end_if %>
 
-	<div class="self-assessment-card-padding">
+	<div class="self-assessment-card-padding <% if $Tidbit %>hasTidBit<% end_if %>">
 		<div class="self-assessment-card self-assessment-card--inactive pure-g">
 			<% include Progress Max=$TotalQuestionCount %>
 

@@ -39,11 +39,12 @@ class SelfAssessmentReport extends DataObject {
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 
-		$fields->removeByName('Status');
-		$fields->removeByName('Completed');
-		$fields->removeByName('SubmissionCount');
-		$fields->removeByName('RequestedByID');
-		$fields->removeByName('File');
+		$fields->removeByName(['Status',
+			'Completed',
+			'SubmissionCount',
+			'RequestedByID',
+			'File'
+		]);
 
 		$from = $fields->fieldByName('Root.Main.SubmissionFrom');
 		$from->getDateField()->setConfig('showcalendar', 1);
@@ -69,8 +70,7 @@ class SelfAssessmentReport extends DataObject {
 	}
 
 	/**
-	* Since we are not using the CMS edit field
-	* we need to set the status manually
+	* Since we are not using the CMS edit field we need to set the status manually
 	*/
 	public function onBeforeWrite() {
 		parent::onBeforeWrite();

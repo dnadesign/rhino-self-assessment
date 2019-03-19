@@ -11,27 +11,18 @@
 	<div class="self-assessment-card">
 
 		<div class="self-assessment-start-wrapper">
+			<div class="self-assessment-start-content-wrapper">
+				<% if $Top.Controller.EstimatedTime %>
+					<p class="self-assessment-start-time">
+						$Top.Controller.EstimatedTime
+					</p>
+				<% end_if %>
 
-			<% if $Top.Controller.EstimatedTime %>
-				<p class="self-assessment-start-time">
-					$Top.Controller.EstimatedTime
-				</p>
-			<% end_if %>
+				<h2 class="self-assessment-start-title">$Top.Controller.StartTitle</h2>
 
-			<h2 class="self-assessment-start-title">$Top.Controller.StartTitle</h2>
-
-			<div class="self-assessment-start-content">
-				$Top.Controller.StartContent
-			</div>
-
-			<% if not $Top.Controller.Image %>
-				<div class="self-assessment-decoration self-assessment-decoration--top">
-					$SVG('hexagon-single')
+				<div class="self-assessment-start-content">
+					$Top.Controller.StartContent
 				</div>
-			<% end_if %>
-
-			<div class="self-assessment-decoration self-assessment-decoration--start">
-				$SVG('hexagon-initial')
 			</div>
 
 			<button class="pure-button pure-button--primary self-assessment-start-button" data-self-assessment-start-button data-self-assessment-title="$Top.Controller.Title">Get started</button>

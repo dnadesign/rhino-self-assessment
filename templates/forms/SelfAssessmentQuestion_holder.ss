@@ -7,29 +7,25 @@
 				<% if $ResultTheme %>
 					<h3 class="self-assessment-tidbit-title">$ResultTheme.Title</h3>
 				<% end_if %>
-				
+
 				<% if $TidbitImage %>
 					<% with $TidbitImage %>
 						<div class="self-assessment-tidbit-image">
 							<img src="$URL" alt="$Title" />
 						</div>
 					<% end_with %>
-				<% end_if %>				
+				<% end_if %>
 				<div class="self-assessment-tidbit-content">
 					<% if $TidbitTitle %><h3>$TidbitTitle</h3><% end_if %>
 					$Tidbit
 				</div>
 
-				<div class="self-assessment-decoration self-assessment-decoration--start">
-					$SVG('hexagon-tip')
-				</div>
-				
 				<button type="button" class="pure-button pure-button--primary self-assessment-button self-assessment-button--block" data-self-assessment-next-button data-self-assessment-title="$SelfAssessmentTitle">Next</button>
 			</div>
 		</div>
 	<% end_if %>
 
-	<div class="self-assessment-card-padding">
+	<div class="self-assessment-card-padding <% if $Tidbit %>hasTidBit<% end_if %>">
 		<div class="self-assessment-card self-assessment-card--inactive pure-g">
 			<% include Progress Max=$TotalQuestionCount %>
 
@@ -42,10 +38,6 @@
 			<% end_if %>
 			<div class="pure-u-1">
 				<div class="pure-g self-assessment-card-wrapper" data-self-assessment-card-wrapper>
-
-					<div class="self-assessment-decoration self-assessment-decoration--start">
-						$SVG('hexagon-double')
-					</div>
 
 					<div class="pure-u-1 pure-u-lg-1-2">
 						<h2 class="self-assessment-question-title">

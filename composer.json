@@ -8,7 +8,7 @@
 		"api"
 	],
 	"require": {
-		"silverstripe/framework": "3.*"
+		"silverstripe/framework": "^4"
 	},
 	"extra": {
 		"installer-name": "rhino-self-assessment"

@@ -1,7 +1,7 @@
 {
 	"name": "dnadesign/rhino-self-assessment",
 	"description": "SilverStripe module making use of Rhino (rhino-lite and rhino-fields) to scaffold a quiz",
-	"type": "silverstripe-module",
+    "type": "silverstripe-vendormodule",
 	"keywords": [
 		"silverstripe",
 		"rest",
@@ -12,5 +12,10 @@
 	},
 	"extra": {
 		"installer-name": "rhino-self-assessment"
-	}
+	},
+    "autoload": {
+        "psr-4": {
+            "DNADesign\\Rhino-fields\\": "src/"
+        }
+    }
 }

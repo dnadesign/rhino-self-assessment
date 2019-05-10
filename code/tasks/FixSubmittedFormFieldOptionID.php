@@ -1,28 +1,37 @@
 <?php
 
-class FixSubmittedFormFieldOptionID extends BuildTask {
+namespace DNADesign\Rhino\Fields;
 
-	protected $title = 'Fix Submitted Form Field ParentIDs';
+use SilverStripe\Dev\BuildTask;
+use SilverStripe\UserForms\Model\EditableFormField;
+use SilverStripe\UserForms\Model\Submission\SubmittedFormField;
 
-	protected $description = 'Re-save all SubmittedFormField to populate the missing ParentFieldId and ParentOptionID';
+class FixSubmittedFormFieldOptionID extends BuildTask
+{
+    protected $title = 'Fix Submitted Form Field ParentIDs';
 
-	public function run($request) {
-		$fields = SubmittedFormField::get()->filter('ParentFieldID', '0');
+    protected $description = 'Re-save all SubmittedFormField to populate the missing ParentFieldId and ParentOptionID';
 
-		echo sprintf('Updating %s fields...', $fields->count());
+    public function run($request)
+    {
+        $fields = SubmittedFormField::get()->filter('ParentFieldID', '0');
 
-		foreach($fields as $field) {
-			$submission = $field->Parent();
+        echo sprintf('Updating %s fields...', $fields->count());
 
-			$source = EditableFormField::get()->filter(array('ParentID' => $submission->ParentID, 'Name' => $field->Name))->First();
+        foreach ($fields as $field) {
+            $submission = $field->Parent();
 
-			if ($source) {
-				$field->onPopulationFromField($source);
-				$field->write();
-			}
-			
-		}
+            $source = EditableFormField::get()->filter([
+                'ParentID' => $submission->ParentID,
+                'Name' => $field->Name
+            ])->First();
 
-		echo 'Done!';
-	}
+            if ($source) {
+                $field->onPopulationFromField($source);
+                $field->write();
+            }
+        }
+
+        echo 'Done!';
+    }
 }

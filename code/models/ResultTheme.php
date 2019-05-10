@@ -1,114 +1,138 @@
 <?php
 
-class ResultTheme extends DataObject {
+namespace DNADesign\Rhino\Model;
 
-	private static $db = array(
-		'Title' => 'Varchar(255)',
-		'Sort' => 'Int'
-	);
+use EditableSelfAssessmentOption;
+use SelfAssessmentQuestion;
+use SilverStripe\Control\Controller;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\FieldType\DBHTMLText;
+use SilverStripe\ORM\Queries\SQLUpdate;
 
-	private static $has_one = array(
-		'SelfAssessment' => 'SelfAssessment'
-	);
+class ResultTheme extends DataObject
+{
+    private static $db = [
+        'Title' => 'Varchar(255)',
+        'Sort' => 'Int'
+    ];
 
-	private static $has_many = array(
-		'Questions' => 'SelfAssessmentQuestion'
-	);
+    private static $has_one = [
+        'SelfAssessment' => 'SelfAssessment'
+    ];
 
-	private static $summary_fields = array(
-		'Title' => 'Title',
-		'getQuestionsList' => 'Questions'
-	);
+    private static $has_many = [
+        'Questions' => 'SelfAssessmentQuestion'
+    ];
 
-	private static $default_sort = 'Sort ASC';
+    private static $summary_fields = [
+        'Title' => 'Title',
+        'getQuestionsList' => 'Questions'
+    ];
 
-	public function getCMSFields() {
-		$fields = parent::getCMSFields();
+    private static $default_sort = 'Sort ASC';
 
-		$fields->removeByName('Sort');
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
 
-		if ($this->IsInDB()) {
-			$questions = $fields->fieldByName('Root.Questions.Questions');
-			$fields->removeByName('Questions');
+        $fields->removeByName('Sort');
 
-			$config = $questions->getConfig();
-			$config->removeComponentsByType('GridFieldAddNewButton');
+        if ($this->IsInDB()) {
+            $questions = $fields->fieldByName('Root.Questions.Questions');
+            $fields->removeByName('Questions');
 
-			// Allow to search only the Question of this assessment
-			$questionField = SelfAssessmentQuestion::get()->filter(array('ParentID' => $this->SelfAssessment()->ID, 'ResultThemeID:LessThan' => '1'));
-			$autoCompleter = $config->getComponentByType('GridFieldAddExistingAutocompleter');
-			$autoCompleter->setSearchList($questionField);
+            $config = $questions->getConfig();
+            $config->removeComponentsByType('GridFieldAddNewButton');
 
-			$fields->addFieldtoTab('Root.Main', $questions);
-		}
+            // Allow to search only the Question of this assessment
+            $questionField = SelfAssessmentQuestion::get()->filter([
+                'ParentID' => $this->SelfAssessment()->ID,
+                'ResultThemeID:LessThan' => '1'
+            ]);
+            $autoCompleter = $config->getComponentByType('GridFieldAddExistingAutocompleter');
+            $autoCompleter->setSearchList($questionField);
 
-		return $fields;
-	}
+            $fields->addFieldtoTab('Root.Main', $questions);
+        }
 
-	/**
-	* Need to make sure we release the question when deleting the theme
-	*/
-	public function onBeforeDelete() {
-		parent::onBeforeDelete();
+        return $fields;
+    }
 
-		$updateQuestions = new SQLUpdate('SelfAssessmentQuestion', array('ResultThemeID' => 0), array('ResultThemeID' => $this->ID));
-		$updateQuestions->execute();
+    /**
+     * Need to make sure we release the question when deleting the theme
+     */
+    public function onBeforeDelete()
+    {
+        parent::onBeforeDelete();
 
-		$updateQuestions->setTable('SelfAssessmentQuestion_Live');
-		$updateQuestions->execute();
-	}
+        $updateQuestions = new SQLUpdate('SelfAssessmentQuestion', ['ResultThemeID' => 0],
+            ['ResultThemeID' => $this->ID]);
+        $updateQuestions->execute();
 
-	/**
-	* Used by Gridfield Summary
-	*/
-	public function getQuestionsList() {
-		if ($this->Questions()->exists()) {
-			$titles = $this->Questions()->column('Title');
-			$titles = implode('<br/>', $titles);
+        $updateQuestions->setTable('SelfAssessmentQuestion_Live');
+        $updateQuestions->execute();
+    }
 
-			$list = HTMLText::create();
-			$list->setValue($titles);
-			return $list;
-		}
-	}
+    /**
+     * Used by Gridfield Summary
+     */
+    public function getQuestionsList()
+    {
+        if ($this->Questions()->exists()) {
+            $titles = $this->Questions()->column('Title');
+            $titles = implode('<br/>', $titles);
 
-	/**
-	* Look up the submission from the URL UID and return a collection of advice for each questions present in this theme
-	*
-	* @return ArrayList
-	*/
-	public function getAdviceForCurrentSubmission() {
-		$controller = Controller::curr();
-		$submission = null;
+            $list = DBHTMLText::create();
+            $list->setValue($titles);
 
-		if ($controller->hasMethod('getSubmission')) {
-			$submission = $controller->getSubmission();
-		}
+            return $list;
+        }
+    }
 
-		if (!$submission) user_error('Controller is unable to retrieve submission. Check method getSubmission() is present.');
+    /**
+     * Look up the submission from the URL UID and return a collection of advice for each questions present in this theme
+     *
+     * @return ArrayList
+     */
+    public function getAdviceForCurrentSubmission()
+    {
+        $controller = Controller::curr();
+        $submission = null;
 
-		$collection = [];
-						
-		$options = EditableSelfAssessmentOption::get()
-					// Get all the options which parent question are in this theme
-					// And which value has been submitted by user
-					->filter(array('ParentID' => $this->Questions()->column('ID'), 'ID' =>  $submission->Values()->column('ParentOptionID')))
-					// Exclude options that do not have an advice
-					->exclude(array('Advice' => ''))
-					// Sort by Star Rating
-					->sort('Rating ASC');
+        if ($controller->hasMethod('getSubmission')) {
+            $submission = $controller->getSubmission();
+        }
 
-		foreach ($options as $option) {
-			$advice = array(
-				'Question' => $option->Title,
-				'Advice' => $option->dbObject('Advice'),
-				'Rating' => $option->Rating
-			);
+        if (!$submission) {
+            user_error('Controller is unable to retrieve submission. Check method getSubmission() is present.');
+        }
 
-			array_push($collection, $advice);
-		}
+        $collection = [];
 
-		return new ArrayList($collection);
-	}
+        $options = EditableSelfAssessmentOption::get()
+            // Get all the options which parent question are in this theme
+            // And which value has been submitted by user
+            ->filter([
+                'ParentID' => $this->Questions()->column('ID'),
+                'ID' => $submission->Values()->column('ParentOptionID')
+            ])
+            // Exclude options that do not have an advice
+            ->exclude(['Advice' => ''])
+            // Sort by Star Rating
+            ->sort('Rating ASC');
+
+        foreach ($options as $option) {
+            $advice = [
+                'Question' => $option->Title,
+                'Advice' => $option->dbObject('Advice'),
+                'Rating' => $option->Rating
+            ];
+
+            array_push($collection, $advice);
+        }
+
+        return new ArrayList($collection);
+    }
 
 }

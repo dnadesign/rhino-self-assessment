@@ -1,5 +1,11 @@
 <?php
 
+namespace DNADesign\Rhino\Elements;
+
+use ElementUserDefinedForm;
+use SelfAssessmentController;
+use SilverStripe\Control\Controller;
+
 /**
  * @package elemental
  */
@@ -11,10 +17,10 @@ class ElementSelfAssessment extends ElementUserDefinedForm
 
     private static $exclude_from_content = true;
 
-	public function ElementForm()
+    public function ElementForm()
     {
         if ($this->Form()->exists()) {
-            $controller = new SelfAssessment_Controller($this->Form());
+            $controller = SelfAssessmentController::create($this->Form());
 
             $current = Controller::curr();
 

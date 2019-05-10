@@ -1,59 +1,78 @@
 <?php
 
-class GridfieldDownloadReportButton implements GridField_ColumnProvider, GridField_ActionProvider {
+namespace DNADesign\Rhino\Gridfield;
 
-	public function augmentColumns($gridField, &$columns) {
-		if(!in_array('Actions', $columns)) {
-			$columns[] = 'Actions';
-		}
-	}
+use SelfAssessmentReport;
+use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridField_ActionProvider;
+use SilverStripe\Forms\GridField\GridField_ColumnProvider;
+use SilverStripe\Forms\GridField\GridField_FormAction;
 
-	public function getColumnAttributes($gridField, $record, $columnName) {
-		return array('class' => 'col-buttons');
-	}
+class GridfieldDownloadReportButton implements GridField_ColumnProvider, GridField_ActionProvider
+{
+    public function augmentColumns($gridField, &$columns)
+    {
+        if (!in_array('Actions', $columns)) {
+            $columns[] = 'Actions';
+        }
+    }
 
-	public function getColumnMetadata($gridField, $columnName) {
-		if($columnName == 'Actions') {
-			return array('title' => '');
-		}
-	}
+    public function getColumnAttributes($gridField, $record, $columnName)
+    {
+        return ['class' => 'col-buttons'];
+    }
 
-	public function getColumnsHandled($gridField) {
-		return array('Actions');
-	}
+    public function getColumnMetadata($gridField, $columnName)
+    {
+        if ($columnName == 'Actions') {
+            return ['title' => ''];
+        }
+    }
 
-	public function getColumnContent($gridField, $record, $columnName) {
-		if (!$record->File()->exists()) return;
+    public function getColumnsHandled($gridField)
+    {
+        return ['Actions'];
+    }
 
-		$field = GridField_FormAction::create(
-			$gridField,
-			'DownloadFile',
-			'Download',
-			"downloadfile",
-			array('RecordID' => $record->ID)
-		);
+    public function getColumnContent($gridField, $record, $columnName)
+    {
+        if (!$record->File()->exists()) {
+            return;
+        }
 
-		$field->addExtraClass('no-ajax');
+        $field = GridField_FormAction::create(
+            $gridField,
+            'DownloadFile',
+            'Download',
+            "downloadfile",
+            ['RecordID' => $record->ID]
+        );
 
-		return $field->Field();
-	}
+        $field->addExtraClass('no-ajax');
 
-	public function getActions($gridField) {
-		return array('downloadfile');
-	}
+        return $field->Field();
+    }
 
-	public function handleAction(GridField $gridField, $actionName, $arguments, $data) {
-		if($actionName == 'downloadfile') {
-			if (isset($arguments['RecordID']) && $arguments['RecordID'] > 0) {
-				$report = SelfAssessmentReport::get()->byID($arguments['RecordID']);
-				if ($report) {
-					$file = $report->File();
-					if ($file->exists()) {
-						$content = file_get_contents($file->getFullPath());
-						return SS_HTTPRequest::send_file($content, $file->FileName);
-					}
-				}
-			}
-		}
-	}
+    public function getActions($gridField)
+    {
+        return ['downloadfile'];
+    }
+
+    public function handleAction(GridField $gridField, $actionName, $arguments, $data)
+    {
+        if ($actionName == 'downloadfile') {
+            if (isset($arguments['RecordID']) && $arguments['RecordID'] > 0) {
+                $report = SelfAssessmentReport::get()->byID($arguments['RecordID']);
+                if ($report) {
+                    $file = $report->File();
+                    if ($file->exists()) {
+                        $content = file_get_contents($file->getFullPath());
+
+                        return HTTPRequest::send_file($content, $file->FileName);
+                    }
+                }
+            }
+        }
+    }
 }

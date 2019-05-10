@@ -1,14 +1,16 @@
 <?php
 
-class SelfAssessmentSubmission extends RhinoSubmittedAssessment {
+namespace DNADesign\Rhino\Model;
 
-	private static $db = [
-		'UserEmail' => 'Varchar(255)'
-	];
+class SelfAssessmentSubmission extends RhinoSubmittedAssessment
+{
+    private static $db = [
+        'UserEmail' => 'Varchar(255)'
+    ];
 
-	private static $summary_fields = [
-		'ID' => 'ID',
-		'Created' => 'Submitted on',
-		'SubmittedBy.Title' => 'SubmittedBy'
-	];
+    private static $summary_fields = [
+        'ID' => 'ID',
+        'Created' => 'Submitted on',
+        'SubmittedBy.Title' => 'SubmittedBy'
+    ];
 }

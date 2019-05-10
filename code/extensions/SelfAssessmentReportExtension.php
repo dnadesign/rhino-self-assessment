@@ -1,14 +1,19 @@
 <?php
 
-class SelfAssessmentReportExtension extends DataExtension {
+namespace DNADesign\Rhino\Extensions;
 
-	/**
-	* If a report is valid ie has submission a QueuedJob is created, so we cannot allow to amend it afterward
-	*/
-	public function updateBetterButtonsActions($actions) {
-		$actions->removeByName('action_save');
+use SilverStripe\ORM\DataExtension;
 
-		$saveAndClose = $actions->fieldByName('action_doSaveAndQuit');
-		$saveAndClose->setButtonContent('Request Report');
-	}
+class SelfAssessmentReportExtension extends DataExtension
+{
+    /**
+     * If a report is valid ie has submission a QueuedJob is created, so we cannot allow to amend it afterward
+     */
+    public function updateBetterButtonsActions($actions)
+    {
+        $actions->removeByName('action_save');
+
+        $saveAndClose = $actions->fieldByName('action_doSaveAndQuit');
+        $saveAndClose->setButtonContent('Request Report');
+    }
 }

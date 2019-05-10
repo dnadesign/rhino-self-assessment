@@ -1,33 +1,40 @@
 <?php
 
-class EditableSelfAssessmentOption extends EditableMultiChoiceOption {
+namespace DNADesign\Rhino\Fields;
 
-	private static $singular_name = 'Self Assessment Question Option';
+use SilverStripe\Forms\OptionsetField;
+use SilverStripe\Forms\RequiredFields;
 
-	private static $db = array(
-		'Advice' => 'HTMLText',
-		'Rating' => "Enum('1,2,3,4,5', '1')"		
-	);
+class EditableSelfAssessmentOption extends EditableMultiChoiceOption
+{
+    private static $singular_name = 'Self Assessment Question Option';
 
-	private static $summary_fields = array(
-		'Title' => 'Answer',
-		'Advice.Summary' => 'Advice',
-		'Rating' => 'Rating'
-	);
+    private static $db = [
+        'Advice' => 'HTMLText',
+        'Rating' => "Enum('1,2,3,4,5', '1')"
+    ];
 
-	public function getCMSFields() {
-		$fields = parent::getCMSFields();
+    private static $summary_fields = [
+        'Title' => 'Answer',
+        'Advice.Summary' => 'Advice',
+        'Rating' => 'Rating'
+    ];
 
-		$fields->removeByName('IsCorrectAnswer');
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
 
-		// Star rating
-		$rating = OptionsetField::create('Rating', 'Rating', $this->dbObject('Rating')->enumValues(), $this->Rating);
-		$fields->addFieldToTab('Root.Main', $rating, 'Advice');
+        $fields->removeByName('IsCorrectAnswer');
 
-		return $fields;
-	}
+        // Star rating
+        $rating = OptionsetField::create('Rating', 'Rating', $this->dbObject('Rating')->enumValues(), $this->Rating);
+        $fields->addFieldToTab('Root.Main', $rating, 'Advice');
 
-	public function getCMSValidator(){
-		return new RequiredFields(array('Value', 'Rating'));
-	}
+        return $fields;
+    }
+
+    public function getCMSValidator()
+    {
+        return new RequiredFields(['Value', 'Rating']);
+    }
 }

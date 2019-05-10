@@ -1,5 +1,15 @@
 <?php
 
+namespace DNADesign\Rhino\Pagetypes;
+
+use SilverStripe\Forms\TextField;
+use SilverStripe\AssetAdmin\Forms\UploadField;
+use SilverStripe\Forms\HTMLEditor\HTMLEditorField;
+use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
+use Symbiote\GridFieldExtensions\GridFieldOrderableRows;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\ToggleCompositeField;
+
 class SelfAssessment extends RhinoAssessment {
 
 	private static $singular_name = 'Self Assessment';

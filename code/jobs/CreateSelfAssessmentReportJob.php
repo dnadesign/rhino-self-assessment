@@ -1,202 +1,221 @@
 <?php
 
-class CreateSelfAssessmentReportJob extends AbstractQueuedJob implements QueuedJob {
+namespace DNADesign\Rhino\Reports;
 
-	/**
-	* ALlows to pass a year as parameter from the CMS model admin
-	*/
-	public function __construct() {
-		$args = array_filter(func_get_args());
+use File;
+use SelfAssessmentReport;
+use SilverStripe\ORM\DataObject;
+use Symbiote\QueuedJobs\Services\AbstractQueuedJob;
+use Symbiote\QueuedJobs\Services\QueuedJob;
 
-		if (isset($args[0])) {
-			$this->ReportID = $args[0];
-		}
-	}
+class CreateSelfAssessmentReportJob extends AbstractQueuedJob implements QueuedJob
+{
+    /**
+     * ALlows to pass a year as parameter from the CMS model admin
+     */
+    public function __construct()
+    {
+        $args = array_filter(func_get_args());
 
-	public function getReport() {
-		return ($this->ReportID) ? SelfAssessmentReport::get()->byID($this->ReportID) : null;
-	}
+        if (isset($args[0])) {
+            $this->ReportID = $args[0];
+        }
+    }
 
-	/**
-	 * Defines the title of the job
-	 *
-	 * @return string
-	 */
-	public function getTitle() {
-		$report = $this->getReport();
-		if ($report && $report->exists() && $report->Assessment() && $report->Assessment()->exists()) {
-			return sprintf('Create "%s" report from %s to %s (%s test data)', 
-				$report->Assessment()->Title, 
-				$report->dbObject('SubmissionFrom')->Format('d, M Y H:i:s'),
-				$report->dbObject('SubmissionTo')->Format('d, M Y H:i:s'),
-				($report->IncludeTestData) ? 'includes' : 'excludes');
-		}
+    public function getReport()
+    {
+        return ($this->ReportID) ? SelfAssessmentReport::get()->byID($this->ReportID) : null;
+    }
 
-		return 'Cannot find the assemment to report on!';		
-	}
+    /**
+     * Defines the title of the job
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        $report = $this->getReport();
+        if ($report && $report->exists() && $report->Assessment() && $report->Assessment()->exists()) {
+            return sprintf('Create "%s" report from %s to %s (%s test data)',
+                $report->Assessment()->Title,
+                $report->dbObject('SubmissionFrom')->Format('d, M Y H:i:s'),
+                $report->dbObject('SubmissionTo')->Format('d, M Y H:i:s'),
+                ($report->IncludeTestData) ? 'includes' : 'excludes');
+        }
 
-	/**
-	 * Indicate to the system which queue we think we should be in based
-	 * on how many objects we're going to touch on while processing.
-	 *
-	 * We want to make sure we also set how many steps we think we might need to take to
-	 * process everything - note that this does not need to be 100% accurate, but it's nice
-	 * to give a reasonable approximation
-	 *
-	 * @return int
-	 */
-	public function getJobType() {
-		$report = $this->getReport();
-		if ($report) {
-			$this->totalSteps = $report->getSubmittedFields()->Count();
-		}
+        return 'Cannot find the assemment to report on!';
+    }
 
-		return QueuedJob::QUEUED;
-	}
+    /**
+     * Indicate to the system which queue we think we should be in based
+     * on how many objects we're going to touch on while processing.
+     *
+     * We want to make sure we also set how many steps we think we might need to take to
+     * process everything - note that this does not need to be 100% accurate, but it's nice
+     * to give a reasonable approximation
+     *
+     * @return int
+     */
+    public function getJobType()
+    {
+        $report = $this->getReport();
+        if ($report) {
+            $this->totalSteps = $report->getSubmittedFields()->Count();
+        }
 
-	/**
-	* Retrieve all the organisation that do not have an annual report yet
-	*/
-	public function setup() {
-		$report = $this->getReport();
-		
-		$remainingChildren = $report->getSubmittedFields()->column('ID');
-		$this->remainingChildren = $remainingChildren;
+        return QueuedJob::QUEUED;
+    }
 
-		$fileObj = $report->find_or_create_file();
-		$filename = ($fileObj) ? $fileObj->getFullPath() : null;
+    /**
+     * Retrieve all the organisation that do not have an annual report yet
+     */
+    public function setup()
+    {
+        $report = $this->getReport();
 
-		$csvHeader = array(
-			'Tool Title',
-			'Date Completed',
-			'UID',
-			'Question',
-			'Answer',
-			'Advice',
-			'Rating',
-			'Theme',
-			'UserEmail'
-		);
+        $remainingChildren = $report->getSubmittedFields()->column('ID');
+        $this->remainingChildren = $remainingChildren;
 
-		// If file does not exists yet, create it and add the csv headers
-		if (!file_exists($filename)) {
-			if ($file = fopen($filename, 'w')) {
-				fwrite($file, implode(',',$csvHeader).PHP_EOL);
-				fclose($file);
-				$this->addMessage('Created CSV file '.$filename, 'INFO');
-			} else {
-				$this->addMessage('Unable to create CSV file!', 'WARNING');
-			}
-		} else {
-			$this->addMessage('File already exists!', 'WARNING');
-			$this->remainingChildren = [];
-			$this->isComplete = true;
-		}
+        $fileObj = $report->find_or_create_file();
+        $filename = ($fileObj) ? $fileObj->getFullPath() : null;
 
-		$this->csvFilename = $filename;
-		$this->FileObjID = $fileObj->ID;
-	}
+        $csvHeader = [
+            'Tool Title',
+            'Date Completed',
+            'UID',
+            'Question',
+            'Answer',
+            'Advice',
+            'Rating',
+            'Theme',
+            'UserEmail'
+        ];
 
-	/**
-	 * Lets process a single node, and  create the PDF and CSV
-	 */
-	public function process() {
-		// Update the sattus of the report
-		$report = $this->getReport();
-		if ($report && $report->Status == 'Pending') {
-			$report->Status = 'Started';
-			$report->write();
-		}
+        // If file does not exists yet, create it and add the csv headers
+        if (!file_exists($filename)) {
+            if ($file = fopen($filename, 'w')) {
+                fwrite($file, implode(',', $csvHeader) . PHP_EOL);
+                fclose($file);
+                $this->addMessage('Created CSV file ' . $filename, 'INFO');
+            } else {
+                $this->addMessage('Unable to create CSV file!', 'WARNING');
+            }
+        } else {
+            $this->addMessage('File already exists!', 'WARNING');
+            $this->remainingChildren = [];
+            $this->isComplete = true;
+        }
 
-		$remainingChildren = $this->remainingChildren;
+        $this->csvFilename = $filename;
+        $this->FileObjID = $fileObj->ID;
+    }
 
-		// if there's no more, we're done!
-		if (!count($remainingChildren)) {
-			$this->isComplete = true;
-			return;
-		}
+    /**
+     * Lets process a single node, and  create the PDF and CSV
+     */
+    public function process()
+    {
+        // Update the sattus of the report
+        $report = $this->getReport();
+        if ($report && $report->Status == 'Pending') {
+            $report->Status = 'Started';
+            $report->write();
+        }
 
-		// we need to always increment! This is important, because if we don't then our container
-		// that executes around us thinks that the job has died, and will stop it running.
-		$this->currentStep++;
+        $remainingChildren = $this->remainingChildren;
 
-		// lets process our first item - note that we take it off the list of things left to do
-		$ID = array_shift($remainingChildren);
+        // if there's no more, we're done!
+        if (!count($remainingChildren)) {
+            $this->isComplete = true;
 
-		// get the field
-		$answer = DataObject::get_by_id('SubmittedFormField', $ID);
-		// And the question
-		$question = ($answer && $answer->exists()) ? $answer->getParentEditableFormField() : null;
+            return;
+        }
 
-		if ($answer && $question) {
-			// We need to get the submnission
-			$submission = $answer->Parent();
-			// And the tool
-			$assessment = $submission->Parent();			
+        // we need to always increment! This is important, because if we don't then our container
+        // that executes around us thinks that the job has died, and will stop it running.
+        $this->currentStep++;
 
-			// Build data 
-			$line = array(
-				$assessment->Title,
-				$submission->Created,
-				$submission->uid,
-				$question->Title,
-				$answer->Value,
-				($question->hasMethod('getAdviceForAnswer')) ? $question->getAdviceForAnswer($answer) : '',
-				($question->hasMethod('getRatingForAnswer')) ? $question->getRatingForAnswer($answer) : '',
-				($question->ResultThemeID) ? $question->ResultTheme()->Title : '',
-				$submission->UserEmail
-			);
+        // lets process our first item - note that we take it off the list of things left to do
+        $ID = array_shift($remainingChildren);
 
-			if ($file = fopen($this->csvFilename, 'a')) {
-				fputcsv($file, $line);
-				fclose($file);
-			}
-			 else {
-				$message = 'Could not write '.$this->csvFilename;
-				$this->addMessage($message, 'WARNING');
-				SS_Log::log($message, SS_Log::WARN);
-			}			
+        // get the field
+        $answer = DataObject::get_by_id('SubmittedFormField', $ID);
+        // And the question
+        $question = ($answer && $answer->exists()) ? $answer->getParentEditableFormField() : null;
 
-			$answer->destroy();
-			unset($answer);
+        if ($answer && $question) {
+            // We need to get the submnission
+            $submission = $answer->Parent();
+            // And the tool
+            $assessment = $submission->Parent();
 
-			$question->destroy();
-			unset($question);
+            // Build data
+            $line = [
+                $assessment->Title,
+                $submission->Created,
+                $submission->uid,
+                $question->Title,
+                $answer->Value,
+                ($question->hasMethod('getAdviceForAnswer')) ? $question->getAdviceForAnswer($answer) : '',
+                ($question->hasMethod('getRatingForAnswer')) ? $question->getRatingForAnswer($answer) : '',
+                ($question->ResultThemeID) ? $question->ResultTheme()->Title : '',
+                $submission->UserEmail
+            ];
 
-			$submission->destroy();
-			unset($submission);
+            if ($file = fopen($this->csvFilename, 'a')) {
+                fputcsv($file, $line);
+                fclose($file);
+            } else {
+                $message = 'Could not write ' . $this->csvFilename;
+                $this->addMessage($message, 'WARNING');
 
-			$assessment->destroy();
-			unset($assessment);
+                // TODO: SS4 - logging
+//				SS_Log::log($message, SS_Log::WARN);
+            }
 
-		} else {
-			$message = 'Could not find Answer or Question for Answer ID: '.$ID;
-			$this->addMessage($message, 'WARNING');
-			SS_Log::log($message , SS_Log::WARN);
-		}
+            $answer->destroy();
+            unset($answer);
 
-		// and now we store the new list of remaining children
-		$this->remainingChildren = $remainingChildren;
+            $question->destroy();
+            unset($question);
 
-		if (!count($remainingChildren)) {
+            $submission->destroy();
+            unset($submission);
 
-			// Create a file object
-			$file = File::get()->byID($this->FileObjID);
-			$file->updateFilesystem();
+            $assessment->destroy();
+            unset($assessment);
 
-			if ($report) {
-				$report->Status = 'Done';
-				$report->Completed = SS_DateTime::now();
-				$report->FileID = $file->ID;
-				$report->write();
+        } else {
+            $message = 'Could not find Answer or Question for Answer ID: ' . $ID;
+            $this->addMessage($message, 'WARNING');
 
-				$report->sendNotificationEmail();
-			}
+            // TODO: SS4 - logging
+//			SS_Log::log($message , SS_Log::WARN);
+        }
 
-			$this->addMessage('Done!');
-			$this->isComplete = true;
-			return;
-		}
-	}
+        // and now we store the new list of remaining children
+        $this->remainingChildren = $remainingChildren;
+
+        if (!count($remainingChildren)) {
+
+            // Create a file object
+            $file = File::get()->byID($this->FileObjID);
+            $file->updateFilesystem();
+
+            if ($report) {
+                $report->Status = 'Done';
+                $report->Completed = SS_DateTime::now();
+                $report->FileID = $file->ID;
+                $report->write();
+
+                $report->sendNotificationEmail();
+            }
+
+            $this->addMessage('Done!');
+            $this->isComplete = true;
+
+            return;
+        }
+    }
 
 }

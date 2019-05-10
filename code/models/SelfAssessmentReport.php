@@ -1,216 +1,248 @@
 <?php
 
-class SelfAssessmentReport extends DataObject {
+namespace DNADesign\Rhino\Model;
 
-	private static $default_task = 'CreateSelfAssessmentReportJob';
+use CreateSelfAssessmentReportJob;
+use SilverStripe\Assets\Folder;
+use SilverStripe\Control\Email\Email;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\UserForms\Model\Submission\SubmittedFormField;
+use SilverStripe\Security\Member;
 
-	private static $field_classes_to_include = array('SelfAssessmentQuestion');
 
-	private static $file_path = 'reports/%s';
+class SelfAssessmentReport extends DataObject
+{
+    private static $default_task = 'CreateSelfAssessmentReportJob';
 
-	private static $db = array(
-		'Status' => "Enum('Pending, Started, Done')",
-		'Completed' => 'SS_DateTime',
-		'SubmissionCount' => 'Int',
-		'SubmissionFrom' => 'SS_DateTime',
-		'SubmissionTo' => 'SS_DateTime',
-		'IncludeTestData' => 'Boolean'
-	);
+    private static $field_classes_to_include = ['SelfAssessmentQuestion'];
 
-	private static $has_one = array(
-		'Assessment' => 'SelfAssessment',
-		'RequestedBy' => 'Member',
-		'File' => 'File'
-	);
+    private static $file_path = 'reports/%s';
 
-	private static $summary_fields = array(
-		'ID' => 'ID',
-		'RequestedBy.Name' => 'Requested By',
-		'Created' => 'Requested On',
-		'getStatusLabel' => 'Status',
-		'SubmissionFrom' => 'Submitted From',
-		'SubmissionTo' => 'Submitted Until',
-		'SubmissionCount' => 'Total Submissions',
-		'IncludeTestData.Nice' => 'Include Test Data'
-	);
+    private static $db = [
+        'Status' => "Enum('Pending, Started, Done')",
+        'Completed' => 'SS_DateTime',
+        'SubmissionCount' => 'Int',
+        'SubmissionFrom' => 'SS_DateTime',
+        'SubmissionTo' => 'SS_DateTime',
+        'IncludeTestData' => 'Boolean'
+    ];
 
-	private static $default_sort = 'Created DESC';
+    private static $has_one = [
+        'Assessment' => 'SelfAssessment',
+        'RequestedBy' => 'Member',
+        'File' => 'File'
+    ];
 
-	public function getCMSFields() {
-		$fields = parent::getCMSFields();
+    private static $summary_fields = [
+        'ID' => 'ID',
+        'RequestedBy.Name' => 'Requested By',
+        'Created' => 'Requested On',
+        'getStatusLabel' => 'Status',
+        'SubmissionFrom' => 'Submitted From',
+        'SubmissionTo' => 'Submitted Until',
+        'SubmissionCount' => 'Total Submissions',
+        'IncludeTestData.Nice' => 'Include Test Data'
+    ];
 
-		$fields->removeByName(['Status',
-			'Completed',
-			'SubmissionCount',
-			'RequestedByID',
-			'File'
-		]);
+    private static $default_sort = 'Created DESC';
 
-		$from = $fields->fieldByName('Root.Main.SubmissionFrom');
-		$from->getDateField()->setConfig('showcalendar', 1);
-		$from->getDateField()->setValue(date('Y-m-d'));
-		$from->getTimeField()->setValue('00:00:00');
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
 
-		$to = $fields->fieldByName('Root.Main.SubmissionTo');
-		$to->getDateField()->setConfig('showcalendar', 1);
-		$to->getDateField()->setValue(date('Y-m-d'));
-		$to->getTimeField()->setValue('23:59:00');
+        $fields->removeByName([
+            'Status',
+            'Completed',
+            'SubmissionCount',
+            'RequestedByID',
+            'File'
+        ]);
 
-		return $fields;
-	}
+        $from = $fields->fieldByName('Root.Main.SubmissionFrom');
+        $from->getDateField()->setConfig('showcalendar', 1);
+        $from->getDateField()->setValue(date('Y-m-d'));
+        $from->getTimeField()->setValue('00:00:00');
 
-	public function validate() {
-		$valid = parent::validate();
+        $to = $fields->fieldByName('Root.Main.SubmissionTo');
+        $to->getDateField()->setConfig('showcalendar', 1);
+        $to->getDateField()->setValue(date('Y-m-d'));
+        $to->getTimeField()->setValue('23:59:00');
 
-		if (!$this->getSubmissions() || !$this->getSubmissions()->exists()) {
-			$valid = $valid->error('This report has no submission. Please change the date parameters and/or include test data. ');
-		}
+        return $fields;
+    }
 
-		return $valid;
-	}
+    public function validate()
+    {
+        $valid = parent::validate();
 
-	/**
-	* Since we are not using the CMS edit field we need to set the status manually
-	*/
-	public function onBeforeWrite() {
-		parent::onBeforeWrite();
+        if (!$this->getSubmissions() || !$this->getSubmissions()->exists()) {
+            $valid = $valid->error('This report has no submission. Please change the date parameters and/or include test data. ');
+        }
 
-		if (!$this->Status) {
-			$this->Status = 'Pending';
-		}
+        return $valid;
+    }
 
-		$submissions = $this->getSubmissions();
-		if (!$this->SubmissionCount && $submissions->exists()) {
-			$this->SubmissionCount = $submissions->Count();
-		}
+    /**
+     * Since we are not using the CMS edit field we need to set the status manually
+     */
+    public function onBeforeWrite()
+    {
+        parent::onBeforeWrite();
 
-		if (!$this->RequestedByID) {
-			$this->RequestedByID = Member::currentUserID();
-		}
-	}
+        if (!$this->Status) {
+            $this->Status = 'Pending';
+        }
 
-	/**
-	* Create Task when saving the report object
-	*/ 
-	public function onAfterWrite() {
-		parent::onAfterWrite();
+        $submissions = $this->getSubmissions();
+        if (!$this->SubmissionCount && $submissions->exists()) {
+            $this->SubmissionCount = $submissions->Count();
+        }
 
-		if ($this->Status == 'Pending' && $this->SubmissionCount > 0) {
-			$job = new CreateSelfAssessmentReportJob($this->ID);
-			singleton('QueuedJobService')->queueJob($job);
-		}		
-	}
+        if (!$this->RequestedByID) {
+            $this->RequestedByID = Member::currentUserID();
+        }
+    }
 
-	public function getSubmissions() {
-		$submissions = null;
-		$assessment = $this->Assessment();
+    /**
+     * Create Task when saving the report object
+     */
+    public function onAfterWrite()
+    {
+        parent::onAfterWrite();
 
-		if ($assessment && $assessment->exists()) {
-			// Get sorted submissions
-			$submissions = $assessment->Submissions()->sort('Created ASC');		
+        if ($this->Status == 'Pending' && $this->SubmissionCount > 0) {
+            $job = new CreateSelfAssessmentReportJob($this->ID);
+            singleton('QueuedJobService')->queueJob($job);
+        }
+    }
 
-			// Filter the requested date	
-			if ($this->SubmissionFrom ) {
-				$submissions = $submissions->filter(array(
-					'Created:GreaterThan' => $this->dbObject('SubmissionFrom')->format('Y-m-d H:i:s'),
-				));
-			}		
+    public function getSubmissions()
+    {
+        $submissions = null;
+        $assessment = $this->Assessment();
 
-			if ($this->SubmissionTo) {
-				$submissions = $submissions->filter(array(
-					'Created:LessThan' => $this->dbObject('SubmissionTo')->format('Y-m-d H:i:s')
-				));
-			}	
+        if ($assessment && $assessment->exists()) {
+            // Get sorted submissions
+            $submissions = $assessment->Submissions()->sort('Created ASC');
 
-			// Include test data
-			if (!$this->IncludeTestData) {
-				$submissions = $submissions->filter('SubmittedByID', 0);
-			}
-		}
+            // Filter the requested date
+            if ($this->SubmissionFrom) {
+                $submissions = $submissions->filter([
+                    'Created:GreaterThan' => $this->dbObject('SubmissionFrom')->format('Y-m-d H:i:s'),
+                ]);
+            }
 
-		return $submissions;
-	}
+            if ($this->SubmissionTo) {
+                $submissions = $submissions->filter([
+                    'Created:LessThan' => $this->dbObject('SubmissionTo')->format('Y-m-d H:i:s')
+                ]);
+            }
 
-	public function getSubmittedFields() {
-		$assessment = $this->Assessment();
-		if ($assessment && $assessment->exists()) {
-			$fieldToReportOn = $assessment->Fields()->filter('ClassName', $this->stat('field_classes_to_include'));
-			
-			// Get sorted submissions
-			$submissions = $this->getSubmissions();
+            // Include test data
+            if (!$this->IncludeTestData) {
+                $submissions = $submissions->filter('SubmittedByID', 0);
+            }
+        }
 
-			if ($submissions->exists()) {
-				$fields = SubmittedFormField::get()->filter(array('Name' => $fieldToReportOn->column('Name'), 'ParentID' => $submissions->column('ID')));
-				return $fields;
-			}
-		}
+        return $submissions;
+    }
 
-		return null;
-	}
+    public function getSubmittedFields()
+    {
+        $assessment = $this->Assessment();
+        if ($assessment && $assessment->exists()) {
+            $fieldToReportOn = $assessment->Fields()->filter('ClassName', $this->stat('field_classes_to_include'));
 
-	public function find_or_create_file() {
-		$filetitle = $this->file_title();
-		$folder = $this->file_folder();
+            // Get sorted submissions
+            $submissions = $this->getSubmissions();
 
-		$filename = ($folder && $filetitle) ? sprintf('%s%s', $folder->getFullPath(),  $filetitle) : null;
+            if ($submissions->exists()) {
+                $fields = SubmittedFormField::get()->filter([
+                    'Name' => $fieldToReportOn->column('Name'),
+                    'ParentID' => $submissions->column('ID')
+                ]);
 
-		if ($filename) {
-			$file = File::find($filename);
-			
-			if (!$file) {
-				$file = new File();
-				$file->setFilename($filename);
-				$file->setParentID($folder->ID);
-				$file->write();
-			}
+                return $fields;
+            }
+        }
 
-			return $file;
-		}
-		
-		return null;
-	}
+        return null;
+    }
 
-	public function file_folder() {
-		$assessment = $this->Assessment();
-		if ($assessment && $assessment->exists()) {
-			$path = sprintf($this->stat('file_path'), $assessment->URLSegment);
-			return Folder::find_or_make($path);
-		}
-	}
+    public function find_or_create_file()
+    {
+        $filetitle = $this->file_title();
+        $folder = $this->file_folder();
 
-	public function file_title() {
-		$assessment = $this->Assessment();
-		if ($assessment && $assessment->exists()) {
-			return sprintf('%s(%s)--%s--to--%s.csv', $assessment->URLSegment, $this->ID, $this->dbObject('SubmissionFrom')->Format('d-m-Y'), $this->dbObject('SubmissionTo')->Format('d-m-Y'));
-		}
-	}
+        $filename = ($folder && $filetitle) ? sprintf('%s%s', $folder->getFullPath(), $filetitle) : null;
 
-	public function sendNotificationEmail() {
-		$to = ($this->RequestedBy()->exists()) ? $this->RequestedBy()->Email : null;
-		if (!$to) return;
+        if ($filename) {
+            $file = File::find($filename);
 
-		$file = $this->File();
-		$subject = $this->Assessment()->Title.' report is ready!';
+            if (!$file) {
+                $file = new File();
+                $file->setFilename($filename);
+                $file->setParentID($folder->ID);
+                $file->write();
+            }
 
-		$fromEmail = Config::inst()->get('SiteConfig', 'selfassessment_email_from');
+            return $file;
+        }
 
-		$email = new Email();
-		$email->setFrom($fromEmail[0]);
-		$email->setTo($to);
-		$email->setSubject($subject);
-		$email->setBody(sprintf('The report for %s is ready. <a href="%s">Click here</a> to download it.', $this->Assessment()->Title, $this->File()->AbsoluteLink()));
+        return null;
+    }
 
-		$email->send();
-	}
+    public function file_folder()
+    {
+        $assessment = $this->Assessment();
+        if ($assessment && $assessment->exists()) {
+            $path = sprintf($this->stat('file_path'), $assessment->URLSegment);
 
-	/**
-	* Used in gridfield
-	*/
-	public function getStatusLabel() {
-		if ($this->Status == 'Done' && $this->Completed) {
-			return 'Completed on '.$this->Completed;
-		}
+            return Folder::find_or_make($path);
+        }
+    }
 
-		return $this->Status;
-	}
+    public function file_title()
+    {
+        $assessment = $this->Assessment();
+        if ($assessment && $assessment->exists()) {
+            return sprintf('%s(%s)--%s--to--%s.csv', $assessment->URLSegment, $this->ID,
+                $this->dbObject('SubmissionFrom')->Format('d-m-Y'), $this->dbObject('SubmissionTo')->Format('d-m-Y'));
+        }
+    }
+
+    public function sendNotificationEmail()
+    {
+        $to = ($this->RequestedBy()->exists()) ? $this->RequestedBy()->Email : null;
+        if (!$to) {
+            return;
+        }
+
+        $file = $this->File();
+        $subject = $this->Assessment()->Title . ' report is ready!';
+
+        $fromEmail = Config::inst()->get('SiteConfig', 'selfassessment_email_from');
+
+        $email = new Email();
+        $email->setFrom($fromEmail[0]);
+        $email->setTo($to);
+        $email->setSubject($subject);
+        $email->setBody(sprintf('The report for %s is ready. <a href="%s">Click here</a> to download it.',
+            $this->Assessment()->Title, $this->File()->AbsoluteLink()));
+
+        $email->send();
+    }
+
+    /**
+     * Used in gridfield
+     */
+    public function getStatusLabel()
+    {
+        if ($this->Status == 'Done' && $this->Completed) {
+            return 'Completed on ' . $this->Completed;
+        }
+
+        return $this->Status;
+    }
 }

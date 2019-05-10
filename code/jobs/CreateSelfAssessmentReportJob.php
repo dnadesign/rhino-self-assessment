@@ -5,6 +5,7 @@ namespace DNADesign\Rhino\Reports;
 use File;
 use SelfAssessmentReport;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\FieldType\DBDatetime;
 use Symbiote\QueuedJobs\Services\AbstractQueuedJob;
 use Symbiote\QueuedJobs\Services\QueuedJob;
 
@@ -204,7 +205,7 @@ class CreateSelfAssessmentReportJob extends AbstractQueuedJob implements QueuedJ
 
             if ($report) {
                 $report->Status = 'Done';
-                $report->Completed = SS_DateTime::now();
+                $report->Completed = DBDatetime::now();
                 $report->FileID = $file->ID;
                 $report->write();
 

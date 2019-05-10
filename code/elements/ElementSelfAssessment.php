@@ -2,14 +2,14 @@
 
 namespace DNADesign\Rhino\Elements;
 
-use ElementUserDefinedForm;
+use DNADesign\ElementalUserForms\Model\ElementForm;
 use SelfAssessmentController;
 use SilverStripe\Control\Controller;
 
 /**
  * @package elemental
  */
-class ElementSelfAssessment extends ElementUserDefinedForm
+class ElementSelfAssessment extends ElementForm
 {
     private static $title = "Self Assessment Element";
 

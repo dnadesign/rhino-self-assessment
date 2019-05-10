@@ -1,11 +1,6 @@
 ---
 Name: selfassessment
-After:
-  - 'framework/*'
-  - 'cms/*'
-  - 'rhino#extensions'
-  - 'appextensions'
-  - 'translatable-extensions'
+After: 'rhino#extensions'
 ---
 
 SelfAssessment:

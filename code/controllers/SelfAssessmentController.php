@@ -16,6 +16,7 @@ use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Security\Member;
 use SilverStripe\UserForms\UserForm;
 use SilverStripe\View\Requirements;
+use SilverStripe\Control\HTTPRequest;
 
 class SelfAssessmentController extends RhinoAssessmentController
 {

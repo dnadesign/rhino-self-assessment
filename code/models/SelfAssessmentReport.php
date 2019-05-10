@@ -7,6 +7,7 @@ use SilverStripe\Assets\Folder;
 use SilverStripe\Control\Email\Email;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\UserForms\Model\Submission\SubmittedFormField;
 use SilverStripe\Security\Member;
 
@@ -21,10 +22,10 @@ class SelfAssessmentReport extends DataObject
 
     private static $db = [
         'Status' => "Enum('Pending, Started, Done')",
-        'Completed' => 'SS_DateTime',
+        'Completed' => 'DBDatetime',
         'SubmissionCount' => 'Int',
-        'SubmissionFrom' => 'SS_DateTime',
-        'SubmissionTo' => 'SS_DateTime',
+        'SubmissionFrom' => 'DBDatetime',
+        'SubmissionTo' => 'DBDatetime',
         'IncludeTestData' => 'Boolean'
     ];
 

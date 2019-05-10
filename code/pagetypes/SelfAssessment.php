@@ -26,7 +26,7 @@ class SelfAssessment extends RhinoAssessment {
 		'StartTitle' => 'Text',
 		'StartContent' => 'HTMLText',
 		'EstimatedTime' => 'Varchar(255)',
-		'ResultTitle' => 'VArchar(255)',
+		'ResultTitle' => 'Varchar(255)',
 		'ResultIntro' => 'HTMLText',
 		'ResultEmailText' => 'HTMLText',
 		'EmailModalTitle' => 'Varchar(255)',

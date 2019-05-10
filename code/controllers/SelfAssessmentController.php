@@ -28,7 +28,7 @@ class SelfAssessmentController extends RhinoAssessmentController
      * The public should not be able to access this page directly, instead Redirect them to the first element
      * that reference this assessment. If a user exists, we ar elogged in, so we should see the preview
      */
-    public function index()
+    public function index(HTTPRequest $request = null)
     {
         $loggedIn = Member::currentUserID();
 

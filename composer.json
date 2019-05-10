@@ -9,7 +9,7 @@
 	],
 	"require": {
 		"silverstripe/framework": "^4",
-        "dnadesign/silverstripe-elemental-userforms": "^3"
+        "dnadesign/silverstripe-elemental-userforms": "^4"
     },
 	"extra": {
 		"installer-name": "rhino-self-assessment"

@@ -29,7 +29,7 @@ class SelfAssessmentExtension extends DataExtension
     public function updateCMSFields(FieldList $fields)
     {
         $submitButtonText = $fields->fieldByName('Root.FormOptions.SubmitButtonText');
-        $submitButtonText->setRightTitle('Deaults to "Show My Results"');
+        $submitButtonText->setRightTitle('Defaults to "Show My Results"');
 
         $fields->removeByName([
             'NavigationPromoTileID',

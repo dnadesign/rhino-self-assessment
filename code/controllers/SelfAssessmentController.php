@@ -14,7 +14,7 @@ use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Security\Member;
-use SilverStripe\UserForms\UserForm;
+use SilverStripe\UserForms\Form\UserForm;
 use SilverStripe\View\Requirements;
 use SilverStripe\Control\HTTPRequest;
 

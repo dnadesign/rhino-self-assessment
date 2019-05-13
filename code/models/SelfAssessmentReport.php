@@ -2,21 +2,23 @@
 
 namespace DNADesign\Rhino\Model;
 
-use CreateSelfAssessmentReportJob;
+use DNADesign\Rhino\Reports\CreateSelfAssessmentReportJob;
 use SilverStripe\Assets\Folder;
 use SilverStripe\Control\Email\Email;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\ORM\DataObject;
-use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\UserForms\Model\Submission\SubmittedFormField;
 use SilverStripe\Security\Member;
-
+use DNADesign\Rhino\Pagetypes\SelfAssessment;
+use SilverStripe\Assets\File;
 
 class SelfAssessmentReport extends DataObject
 {
     private static $default_task = 'CreateSelfAssessmentReportJob';
 
     private static $field_classes_to_include = ['SelfAssessmentQuestion'];
+
+    private static $table_name = 'SelfAssessmentReport';
 
     private static $file_path = 'reports/%s';
 
@@ -30,9 +32,9 @@ class SelfAssessmentReport extends DataObject
     ];
 
     private static $has_one = [
-        'Assessment' => 'SelfAssessment',
-        'RequestedBy' => 'Member',
-        'File' => 'File'
+        'Assessment' => SelfAssessment::class,
+        'RequestedBy' => Member::class,
+        'File' => File::class
     ];
 
     private static $summary_fields = [
@@ -61,14 +63,18 @@ class SelfAssessmentReport extends DataObject
         ]);
 
         $from = $fields->fieldByName('Root.Main.SubmissionFrom');
-        $from->getDateField()->setConfig('showcalendar', 1);
-        $from->getDateField()->setValue(date('Y-m-d'));
-        $from->getTimeField()->setValue('00:00:00');
+
+        //TODO: SS4 - check not needed
+//        $from->getDateField()->setConfig('showcalendar', 1);
+//        $from->getDateField()->setValue(date('Y-m-d'));
+//        $from->getTimeField()->setValue('00:00:00');
 
         $to = $fields->fieldByName('Root.Main.SubmissionTo');
-        $to->getDateField()->setConfig('showcalendar', 1);
-        $to->getDateField()->setValue(date('Y-m-d'));
-        $to->getTimeField()->setValue('23:59:00');
+
+        //TODO: SS4 - check not needed
+//        $to->getDateField()->setConfig('showcalendar', 1);
+//        $to->getDateField()->setValue(date('Y-m-d'));
+//        $to->getTimeField()->setValue('23:59:00');
 
         return $fields;
     }
@@ -76,11 +82,11 @@ class SelfAssessmentReport extends DataObject
     public function validate()
     {
         $valid = parent::validate();
-
-        if (!$this->getSubmissions() || !$this->getSubmissions()->exists()) {
-            $valid = $valid->error('This report has no submission. Please change the date parameters and/or include test data. ');
-        }
-
+//
+//        if (!$this->getSubmissions() || !$this->getSubmissions()->exists()) {
+//            $valid = $valid->error('This report has no submission. Please change the date parameters and/or include test data. ');
+//        }
+//
         return $valid;
     }
 

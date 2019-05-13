@@ -4,6 +4,8 @@ namespace DNADesign\Rhino\Model;
 
 class SelfAssessmentSubmission extends RhinoSubmittedAssessment
 {
+    private static $table_name = 'SelfAssessmentSubmission';
+
     private static $db = [
         'UserEmail' => 'Varchar(255)'
     ];

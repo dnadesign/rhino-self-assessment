@@ -2,10 +2,11 @@
 
 namespace DNADesign\Rhino\Extensions;
 
-use GridFieldRequestDeleteTestData;
+use DNADesign\Rhino\Gridfield\GridFieldRequestDeleteTestData;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\ValidationResult;
+use SilverStripe\UserForms\Model\EditableFormField;
 
 /**
  * Self Assessment is the base of the self assessment tool
@@ -74,12 +75,14 @@ class SelfAssessmentExtension extends DataExtension
         $adder = $adders->First();
         $allowedFieldTypes = $this->owner->config()->allowed_field_types;
         if (!$allowedFieldTypes) {
-            $allowedFieldTypes = singleton('EditableFormField')->getEditableFieldClasses();
+            $allowedFieldTypes = singleton(EditableFormField::class)->getEditableFieldClasses();
         }
 
         // Check if we have at least one field type allowed and set the button to create this field type
         $firstAllowedFieldType = (is_array($allowedFieldTypes) && isset($allowedFieldTypes[0])) ? $allowedFieldTypes[0] : [];
-        $adder->setClasses($firstAllowedFieldType);
+
+        //TODO: SS4 - rhino
+//        $adder->setClasses($firstAllowedFieldType);
 
         // Re-include add buttons
         foreach ($adders->toArray() as $component) {
@@ -93,21 +96,24 @@ class SelfAssessmentExtension extends DataExtension
      */
     public function validate(ValidationResult $result)
     {
-        if ($this->owner->isInDB()) {
-
-            // Look for fields without a title
-            $blankFields = $this->owner->Fields()->where('Title IS NULL')->Count();
-
-            if ($blankFields > 0) {
-                $result->error("Please add missing $blankFields  \"Titles\" to all the questions.", 'validation');
-
-                // TODO: add error message on the form itself
-                // Currently doesn't work, only shows the ajax validation popup
-                // $validator = Controller::curr()->getEditForm();
-                // $validator->setMessage('Please add "TItles" to all the questions', 'error');
-            }
-        }
-
-        return $result;
+        //TODO: SS4 - check not needed
+        return true;
+        
+//        if ($this->owner->isInDB()) {
+//
+//            // Look for fields without a title
+//            $blankFields = $this->owner->Fields()->where('Title IS NULL')->Count();
+//
+//            if ($blankFields > 0) {
+//                $result->error("Please add missing $blankFields  \"Titles\" to all the questions.", 'validation');
+//
+//                // TODO: add error message on the form itself
+//                // Currently doesn't work, only shows the ajax validation popup
+//                // $validator = Controller::curr()->getEditForm();
+//                // $validator->setMessage('Please add "TItles" to all the questions', 'error');
+//            }
+//        }
+//
+//        return $result;
     }
 }

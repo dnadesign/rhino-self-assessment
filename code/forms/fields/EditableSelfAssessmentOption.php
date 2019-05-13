@@ -9,6 +9,8 @@ class EditableSelfAssessmentOption extends EditableMultiChoiceOption
 {
     private static $singular_name = 'Self Assessment Question Option';
 
+    private static $table_name = 'EditableSelfAssessmentOption';
+
     private static $db = [
         'Advice' => 'HTMLText',
         'Rating' => "Enum('1,2,3,4,5', '1')"

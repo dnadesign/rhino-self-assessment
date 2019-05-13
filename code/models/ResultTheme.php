@@ -2,8 +2,9 @@
 
 namespace DNADesign\Rhino\Model;
 
-use EditableSelfAssessmentOption;
-use SelfAssessmentQuestion;
+use DNADesign\Rhino\Fields\EditableSelfAssessmentOption;
+use DNADesign\Rhino\Fields\SelfAssessmentQuestion;
+use DNADesign\Rhino\Pagetypes\SelfAssessment;
 use SilverStripe\Control\Controller;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataObject;
@@ -18,17 +19,19 @@ class ResultTheme extends DataObject
     ];
 
     private static $has_one = [
-        'SelfAssessment' => 'SelfAssessment'
+        'SelfAssessment' => SelfAssessment::class
     ];
 
     private static $has_many = [
-        'Questions' => 'SelfAssessmentQuestion'
+        'Questions' => SelfAssessmentQuestion::class
     ];
 
     private static $summary_fields = [
         'Title' => 'Title',
         'getQuestionsList' => 'Questions'
     ];
+
+    private static $table_name = 'ResultTheme';
 
     private static $default_sort = 'Sort ASC';
 
@@ -50,8 +53,10 @@ class ResultTheme extends DataObject
                 'ParentID' => $this->SelfAssessment()->ID,
                 'ResultThemeID:LessThan' => '1'
             ]);
-            $autoCompleter = $config->getComponentByType('GridFieldAddExistingAutocompleter');
-            $autoCompleter->setSearchList($questionField);
+
+                //TODO: SS4 - rhino
+//            $autoCompleter = $config->getComponentByType('GridFieldAddExistingAutocompleter');
+//            $autoCompleter->setSearchList($questionField);
 
             $fields->addFieldtoTab('Root.Main', $questions);
         }

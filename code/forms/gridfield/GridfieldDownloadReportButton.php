@@ -2,7 +2,7 @@
 
 namespace DNADesign\Rhino\Gridfield;
 
-use SelfAssessmentReport;
+use DNADesign\Rhino\Model\SelfAssessmentReport;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridField_ActionProvider;

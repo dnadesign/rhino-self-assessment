@@ -3,7 +3,7 @@
 namespace DNADesign\Rhino\Elements;
 
 use DNADesign\ElementalUserForms\Model\ElementForm;
-use SelfAssessmentController;
+use DNADesign\Rhino\Control\SelfAssessmentController;
 use SilverStripe\Control\Controller;
 
 /**
@@ -16,6 +16,8 @@ class ElementSelfAssessment extends ElementForm
     private static $enable_title_in_template = true;
 
     private static $exclude_from_content = true;
+
+    private static $table_name = 'ElementSelfAssessment';
 
     public function ElementForm()
     {
@@ -32,5 +34,10 @@ class ElementSelfAssessment extends ElementForm
 
             return $form;
         }
+    }
+
+    public function getType()
+    {
+        return _t(__CLASS__ . '.BlockType', 'SelfAssessment');
     }
 }

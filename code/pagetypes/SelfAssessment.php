@@ -2,6 +2,7 @@
 
 namespace DNADesign\Rhino\Pagetypes;
 
+use DNADesign\Rhino\Control\SelfAssessmentController;
 use SilverStripe\Forms\TextField;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Forms\HTMLEditor\HTMLEditorField;
@@ -9,6 +10,11 @@ use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use Symbiote\GridFieldExtensions\GridFieldOrderableRows;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\ToggleCompositeField;
+use DNADesign\Rhino\Model\SelfAssessmentSubmission;
+use DNADesign\Rhino\Model\ResultTheme;
+use SilverStripe\Assets\Image;
+use DNADesign\Rhino\Model\SelfAssessmentReport;
+use DNADesign\Rhino\Gridfield\GridfieldDownloadReportButton;
 
 class SelfAssessment extends RhinoAssessment {
 
@@ -18,9 +24,13 @@ class SelfAssessment extends RhinoAssessment {
 
 	private static $description = 'A quiz/self-assessment tool for inclusion in the Self-Assessment Element (add at root level)';
 
-	private static $submission_class = 'SelfAssessmentSubmission';
+	private static $submission_class = SelfAssessmentSubmission::class;
+
+    private static $table_name = 'SelfAssessment';
 
 	private static $hide_ancestor = 'RhinoAssessment';
+
+    private static $controller_name = SelfAssessmentController::class;
 
 	private static $db = [
 		'StartTitle' => 'Text',
@@ -34,14 +44,14 @@ class SelfAssessment extends RhinoAssessment {
 	];
 
 	private static $has_one = [
-		'Image' => 'Image',
-		'TopLogo' => 'Image',
-		'FooterLogo' => 'Image'
+		'Image' => Image::class,
+		'TopLogo' => Image::class,
+		'FooterLogo' => Image::class
 	];
 
 	private static $has_many = [
-		'ResultThemes' => 'ResultTheme',
-		'Reports' => 'SelfAssessmentReport'
+		'ResultThemes' => ResultTheme::class,
+		'Reports' => SelfAssessmentReport::class
 	];
 
 	public function getCMSFields() {
@@ -77,9 +87,12 @@ class SelfAssessment extends RhinoAssessment {
 
 		// Reports
 		$report_config = GridFieldConfig_RecordEditor::create();
-		$report_config->addComponent(new GridfieldDownloadReportButton());
-		$add = $report_config->getComponentByType('GridFieldAddNewButton');
-		$add->setButtonName('Request New Report');
+//TODO: SS4 - rhino
+//		$report_config->addComponent(GridfieldDownloadReportButton::create());
+//		$add = $report_config->getComponentByType('GridFieldAddNewButton');
+//TODO: SS4 - rhino
+//$add->setButtonName('Request New Report');
+
 		$report_config->removeComponentsByType('GridFieldEditButton');
 		$reports = GridField::create('Reports', 'Reports', $this->Reports(), $report_config);
 		$fields->addFieldToTab('Root.Submissions', $reports, 'Submissions');
@@ -88,16 +101,18 @@ class SelfAssessment extends RhinoAssessment {
 		$formfields = $fields->dataFieldByName('Fields');
 		$config = $formfields->getConfig();
 		$editableColumns = $config->getComponentByType('GridFieldEditableColumns');
-		$columns = $editableColumns->getDisplayFields($formfields);
 
-		if (isset($columns['Title'])) {
-			$columns['Title'] = function ($record, $column, $grid) {
-				if ($record instanceof EditableFormField) {
-					return $record->getInlineTitleField($column)->performReadOnlyTransformation();
-				}
-			};
-		}
-		$editableColumns->setDisplayFields($columns);
+		//TODO: SS4 - rhino
+//		$columns = $editableColumns->getDisplayFields($formfields);
+//
+//		if (isset($columns['Title'])) {
+//			$columns['Title'] = function ($record, $column, $grid) {
+//				if ($record instanceof EditableFormField) {
+//					return $record->getInlineTitleField($column)->performReadOnlyTransformation();
+//				}
+//			};
+//		}
+//		$editableColumns->setDisplayFields($columns);
 
 		$content->setRows(20);
 		$resultIntro->setRows(25);

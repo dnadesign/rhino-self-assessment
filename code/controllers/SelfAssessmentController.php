@@ -3,8 +3,8 @@
 namespace DNADesign\Rhino\Control;
 
 use DNADesign\Elemental\Models\ElementalArea;
-use ElementSelfAssessment;
-use SelfAssessmentSubmission;
+use DNADesign\Rhino\Elements\ElementSelfAssessment;
+use DNADesign\Rhino\Model\SelfAssessmentSubmission;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Email\Email;
 use SilverStripe\Forms\EmailField;

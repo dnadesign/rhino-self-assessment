@@ -3,12 +3,12 @@ Name: selfassessment
 After: 'rhino#extensions'
 ---
 
-SelfAssessment:
+DNADesign\Rhino\Pagetypes\SelfAssessment:
   extensions:
-    - SelfAssessmentExtension
+    - DNADesign\Rhino\Extensions\SelfAssessmentExtension
   allowed_field_types:
-    - SelfAssessmentQuestion
+    - DNADesign\Rhino\Fields\SelfAssessmentQuestion
 
-SelfAssessmentReport:
+DNADesign\Rhino\Model\SelfAssessmentReport:
   extensions:
-    - SelfAssessmentReportExtension
+    - DNADesign\Rhino\Extensions\SelfAssessmentReportExtension

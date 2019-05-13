@@ -2,7 +2,9 @@
 
 namespace DNADesign\Rhino\Fields;
 
+use DNADesign\Rhino\Model\ResultTheme;
 use SilverStripe\AssetAdmin\Forms\UploadField;
+use SilverStripe\Assets\File;
 use SilverStripe\Forms\HTMLEditor\HTMLEditorField;
 use SilverStripe\Forms\TextField;
 
@@ -10,7 +12,9 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
 {
     private static $singular_name = 'Self Assessment Question';
 
-    private static $optionClass = 'EditableSelfAssessmentOption';
+    private static $optionClass = EditableSelfAssessmentOption::class;
+
+    private static $table_name = 'SelfAssessmentQuestion';
 
     private static $casting = [
         "Options" => 'EditableSelfAssessmentOption'
@@ -31,8 +35,8 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
     ];
 
     private static $has_one = [
-        'ResultTheme' => 'ResultTheme',
-        'TidbitImage' => 'File'
+        'ResultTheme' => ResultTheme::class,
+        'TidbitImage' => File::class
     ];
 
     public function getCMSFields()

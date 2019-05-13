@@ -2,8 +2,8 @@
 
 namespace DNADesign\Rhino\Reports;
 
-use File;
-use SelfAssessmentReport;
+use SilverStripe\Assets\File;
+use DNADesign\Rhino\Model\SelfAssessmentReport;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use Symbiote\QueuedJobs\Services\AbstractQueuedJob;

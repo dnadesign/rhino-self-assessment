@@ -6,6 +6,8 @@ use DNADesign\Rhino\Fields\EditableSelfAssessmentOption;
 use DNADesign\Rhino\Fields\SelfAssessmentQuestion;
 use DNADesign\Rhino\Pagetypes\SelfAssessment;
 use SilverStripe\Control\Controller;
+use SilverStripe\Forms\GridField\GridFieldAddExistingAutocompleter;
+use SilverStripe\Forms\GridField\GridFieldAddNewButton;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBHTMLText;
@@ -39,14 +41,16 @@ class ResultTheme extends DataObject
     {
         $fields = parent::getCMSFields();
 
-        $fields->removeByName('Sort');
+        $fields->removeByName([
+            'Sort'
+        ]);
 
         if ($this->IsInDB()) {
             $questions = $fields->fieldByName('Root.Questions.Questions');
             $fields->removeByName('Questions');
 
             $config = $questions->getConfig();
-            $config->removeComponentsByType('GridFieldAddNewButton');
+            $config->removeComponentsByType(GridFieldAddNewButton::class);
 
             // Allow to search only the Question of this assessment
             $questionField = SelfAssessmentQuestion::get()->filter([
@@ -54,9 +58,8 @@ class ResultTheme extends DataObject
                 'ResultThemeID:LessThan' => '1'
             ]);
 
-                //TODO: SS4 - rhino
-//            $autoCompleter = $config->getComponentByType('GridFieldAddExistingAutocompleter');
-//            $autoCompleter->setSearchList($questionField);
+            $autoCompleter = $config->getComponentByType(GridFieldAddExistingAutocompleter::class);
+            $autoCompleter->setSearchList($questionField);
 
             $fields->addFieldtoTab('Root.Main', $questions);
         }

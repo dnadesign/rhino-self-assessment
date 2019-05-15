@@ -39,8 +39,8 @@ class CreateSelfAssessmentReportJob extends AbstractQueuedJob implements QueuedJ
         if ($report && $report->exists() && $report->Assessment() && $report->Assessment()->exists()) {
             return sprintf('Create "%s" report from %s to %s (%s test data)',
                 $report->Assessment()->Title,
-                $report->dbObject('SubmissionFrom')->Format('d, M Y H:i:s'),
-                $report->dbObject('SubmissionTo')->Format('d, M Y H:i:s'),
+                $report->dbObject('SubmissionFrom')->Format('y-MM-dd'),
+                $report->dbObject('SubmissionTo')->Format('y-MM-dd'),
                 ($report->IncludeTestData) ? 'includes' : 'excludes');
         }
 

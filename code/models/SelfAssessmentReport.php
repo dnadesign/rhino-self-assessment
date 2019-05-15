@@ -2,15 +2,16 @@
 
 namespace DNADesign\Rhino\Model;
 
+use DNADesign\Rhino\Pagetypes\SelfAssessment;
 use DNADesign\Rhino\Reports\CreateSelfAssessmentReportJob;
+use SilverStripe\Assets\File;
 use SilverStripe\Assets\Folder;
 use SilverStripe\Control\Email\Email;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\ORM\DataObject;
-use SilverStripe\UserForms\Model\Submission\SubmittedFormField;
 use SilverStripe\Security\Member;
-use DNADesign\Rhino\Pagetypes\SelfAssessment;
-use SilverStripe\Assets\File;
+use SilverStripe\UserForms\Model\Submission\SubmittedFormField;
+use Symbiote\QueuedJobs\Services\QueuedJobService;
 
 class SelfAssessmentReport extends DataObject
 {
@@ -63,6 +64,8 @@ class SelfAssessmentReport extends DataObject
         ]);
 
         $from = $fields->fieldByName('Root.Main.SubmissionFrom');
+        $from->setHTML5(false);
+        $from->setDatetimeFormat('y-MM-dd');
 
         //TODO: SS4 - check not needed
 //        $from->getDateField()->setConfig('showcalendar', 1);
@@ -70,6 +73,8 @@ class SelfAssessmentReport extends DataObject
 //        $from->getTimeField()->setValue('00:00:00');
 
         $to = $fields->fieldByName('Root.Main.SubmissionTo');
+        $to->setHTML5(false);
+        $to->setDatetimeFormat('y-MM-dd');
 
         //TODO: SS4 - check not needed
 //        $to->getDateField()->setConfig('showcalendar', 1);
@@ -120,7 +125,7 @@ class SelfAssessmentReport extends DataObject
 
         if ($this->Status == 'Pending' && $this->SubmissionCount > 0) {
             $job = new CreateSelfAssessmentReportJob($this->ID);
-            singleton('QueuedJobService')->queueJob($job);
+            singleton(QueuedJobService::class)->queueJob($job);
         }
     }
 
@@ -136,13 +141,13 @@ class SelfAssessmentReport extends DataObject
             // Filter the requested date
             if ($this->SubmissionFrom) {
                 $submissions = $submissions->filter([
-                    'Created:GreaterThan' => $this->dbObject('SubmissionFrom')->format('Y-m-d H:i:s'),
+                    'Created:GreaterThan' => $this->dbObject('SubmissionFrom')->format('y-MM-dd'),
                 ]);
             }
 
             if ($this->SubmissionTo) {
                 $submissions = $submissions->filter([
-                    'Created:LessThan' => $this->dbObject('SubmissionTo')->format('Y-m-d H:i:s')
+                    'Created:LessThan' => $this->dbObject('SubmissionTo')->format('y-MM-dd')
                 ]);
             }
 
@@ -215,7 +220,8 @@ class SelfAssessmentReport extends DataObject
         $assessment = $this->Assessment();
         if ($assessment && $assessment->exists()) {
             return sprintf('%s(%s)--%s--to--%s.csv', $assessment->URLSegment, $this->ID,
-                $this->dbObject('SubmissionFrom')->Format('d-m-Y'), $this->dbObject('SubmissionTo')->Format('d-m-Y'));
+                $this->dbObject('SubmissionFrom')->Format('y-MM-dd'),
+                $this->dbObject('SubmissionTo')->Format('y-MM-dd'));
         }
     }
 

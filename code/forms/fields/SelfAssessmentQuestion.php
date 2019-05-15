@@ -5,8 +5,11 @@ namespace DNADesign\Rhino\Fields;
 use DNADesign\Rhino\Model\ResultTheme;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\File;
+use SilverStripe\Forms\GridField\GridFieldConfig_RelationEditor;
 use SilverStripe\Forms\HTMLEditor\HTMLEditorField;
 use SilverStripe\Forms\TextField;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldAddExistingAutocompleter;
 
 class SelfAssessmentQuestion extends EditableMultiChoiceField
 {
@@ -17,7 +20,7 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
     private static $table_name = 'SelfAssessmentQuestion';
 
     private static $casting = [
-        "Options" => 'EditableSelfAssessmentOption'
+        'Options' => 'EditableSelfAssessmentOption'
     ];
 
     private static $summary_fields = [
@@ -39,6 +42,10 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
         'TidbitImage' => File::class
     ];
 
+    private static $owns = [
+        'TidbitImage'
+    ];
+
     public function getCMSFields()
     {
         $fields = parent::getCMSFields();
@@ -50,7 +57,8 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
             'CustomErrorMessage',
             'ShowInSummary',
             'warning',
-            'Validation'
+            'Validation',
+            'Questions'
         ]);
 
         $tidbitTitle = TextField::create('TidbitTitle')->setRightTitle('eg: Did you know...');
@@ -62,6 +70,11 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
         $image->setAllowedExtensions(['svg', 'jpg', 'jpeg', 'png']);
         $image->getValidator()->setAllowedMaxFileSize('2M');
         $fields->addFieldToTab('Root.Tidbit', $image);
+        
+        $optionsConfig = GridFieldConfig_RelationEditor::create();
+        $optionsGrid = GridField::create('Options', 'Options', $this->Options(), $optionsConfig);
+        $optionsConfig->removeComponentsByType(GridFieldAddExistingAutocompleter::class);
+        $fields->addFieldToTab('Root.Main', $optionsGrid);
 
         return $fields;
     }
@@ -82,8 +95,8 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
     {
         $field = parent::getFormField();
 
-        $field->setFieldHolderTemplate('SelfAssessmentQuestion_holder');
-        $field->setTemplate('SelfAssessmentQuestion');
+        $field->setFieldHolderTemplate('DNADesign\Rhino\Fields\SelfAssessmentQuestion_holder');
+        $field->setTemplate('DNADesign\Rhino\Fields\SelfAssessmentQuestion');
 
         $field->customise([
             'Image' => $this->Image(),

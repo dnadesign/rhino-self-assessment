@@ -3,10 +3,15 @@
 namespace DNADesign\Rhino\Pagetypes;
 
 use DNADesign\Rhino\Control\SelfAssessmentController;
+use GraphQL\Error\Debug;
+use SilverStripe\Control\Controller;
+use SilverStripe\Forms\Form;
 use SilverStripe\Forms\TextField;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Forms\HTMLEditor\HTMLEditorField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
+use SilverStripe\UserForms\UserForm;
+use SilverStripe\View\ArrayData;
 use Symbiote\GridFieldExtensions\GridFieldOrderableRows;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\ToggleCompositeField;
@@ -15,6 +20,7 @@ use DNADesign\Rhino\Model\ResultTheme;
 use SilverStripe\Assets\Image;
 use DNADesign\Rhino\Model\SelfAssessmentReport;
 use DNADesign\Rhino\Gridfield\GridfieldDownloadReportButton;
+use SilverStripe\Forms\GridField\GridFieldAddNewButton;
 
 class SelfAssessment extends RhinoAssessment {
 
@@ -48,6 +54,12 @@ class SelfAssessment extends RhinoAssessment {
 		'TopLogo' => Image::class,
 		'FooterLogo' => Image::class
 	];
+	
+	private static $owns =[
+	    'Image',
+        'TopLogo',
+        'FooterLogo'
+    ];
 
 	private static $has_many = [
 		'ResultThemes' => ResultTheme::class,
@@ -56,6 +68,7 @@ class SelfAssessment extends RhinoAssessment {
 
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
+
 
 		// Start Screen
 		$title = Textfield::create('StartTitle', 'Title');
@@ -87,11 +100,11 @@ class SelfAssessment extends RhinoAssessment {
 
 		// Reports
 		$report_config = GridFieldConfig_RecordEditor::create();
-//TODO: SS4 - rhino
-//		$report_config->addComponent(GridfieldDownloadReportButton::create());
-//		$add = $report_config->getComponentByType('GridFieldAddNewButton');
-//TODO: SS4 - rhino
-//$add->setButtonName('Request New Report');
+
+		$report_config->addComponent(new GridfieldDownloadReportButton());
+		$add = $report_config->getComponentByType(GridFieldAddNewButton::class);
+
+        $add->setButtonName('Request New Report');
 
 		$report_config->removeComponentsByType('GridFieldEditButton');
 		$reports = GridField::create('Reports', 'Reports', $this->Reports(), $report_config);
@@ -102,17 +115,6 @@ class SelfAssessment extends RhinoAssessment {
 		$config = $formfields->getConfig();
 		$editableColumns = $config->getComponentByType('GridFieldEditableColumns');
 
-		//TODO: SS4 - rhino
-//		$columns = $editableColumns->getDisplayFields($formfields);
-//
-//		if (isset($columns['Title'])) {
-//			$columns['Title'] = function ($record, $column, $grid) {
-//				if ($record instanceof EditableFormField) {
-//					return $record->getInlineTitleField($column)->performReadOnlyTransformation();
-//				}
-//			};
-//		}
-//		$editableColumns->setDisplayFields($columns);
 
 		$content->setRows(20);
 		$resultIntro->setRows(25);
@@ -131,4 +133,12 @@ class SelfAssessment extends RhinoAssessment {
 		// TODO: Remove this and the countering in js that is done to account for it
 		return $count + 1;
 	}
+
+	//TODO: Shouldn't need this
+	public function getFormPreview()
+    {
+//        \SilverStripe\Dev\Debug::show('e');die;
+        return SelfAssessmentController::singleton(SelfAssessmentController::class)->FormPreview($this->ID);
+    }
+
 }

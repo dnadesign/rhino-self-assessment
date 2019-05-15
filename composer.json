@@ -12,11 +12,17 @@
         "dnadesign/silverstripe-elemental-userforms": "^3"
     },
 	"extra": {
-		"installer-name": "rhino-self-assessment"
+		"installer-name": "rhino-self-assessment",
+        "expose": [
+            "app/css",
+            "app/js",
+            "app/images",
+            "themes/cert/css"
+        ]
 	},
     "autoload": {
         "psr-4": {
-            "DNADesign\\Rhino-fields\\": "src/"
+            "DNADesign\\Rhino-self-assessment\\": "src/"
         }
     }
 }

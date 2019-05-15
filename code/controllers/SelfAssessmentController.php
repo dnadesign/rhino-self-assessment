@@ -7,16 +7,17 @@ use DNADesign\Rhino\Elements\ElementSelfAssessment;
 use DNADesign\Rhino\Model\SelfAssessmentSubmission;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Email\Email;
+use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\RequiredFields;
-use SilverStripe\Security\Member;
+use SilverStripe\Security\Security;
+use DNADesign\Rhino\Forms\RhinoUserForm;
 use SilverStripe\UserForms\Form\UserForm;
 use SilverStripe\View\Requirements;
-use SilverStripe\Control\HTTPRequest;
 
 class SelfAssessmentController extends RhinoAssessmentController
 {
@@ -25,13 +26,15 @@ class SelfAssessmentController extends RhinoAssessmentController
         'EmailSignupForm'
     ];
 
+    public $IncludeFormTag = false;
+
     /**
      * The public should not be able to access this page directly, instead Redirect them to the first element
      * that reference this assessment. If a user exists, we ar elogged in, so we should see the preview
      */
     public function index(HTTPRequest $request = null)
     {
-        $loggedIn = Member::currentUserID();
+        $loggedIn = Security::getCurrentUser();
 
         if ($loggedIn) {
             return parent::index();
@@ -54,9 +57,10 @@ class SelfAssessmentController extends RhinoAssessmentController
      */
     public function Form()
     {
-        $form = UserForm::create($this);
+//        $form = UserForm::create($this);
+        $form = RhinoUserForm::create($this);
         $form->setAttribute('name', 'SelfAssessmentForm');
-        $form->setTemplate('forms/SelfAssessmentForm');
+        $form->setTemplate('DNADesign\Rhino\Forms\SelfAssessmentForm');
 
         return $form;
     }

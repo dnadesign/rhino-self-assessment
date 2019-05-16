@@ -57,7 +57,6 @@ class SelfAssessmentController extends RhinoAssessmentController
      */
     public function Form()
     {
-//        $form = UserForm::create($this);
         $form = RhinoUserForm::create($this);
         $form->setAttribute('name', 'SelfAssessmentForm');
         $form->setTemplate('DNADesign\Rhino\Forms\SelfAssessmentForm');

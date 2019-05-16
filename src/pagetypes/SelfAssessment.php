@@ -34,7 +34,7 @@ class SelfAssessment extends RhinoAssessment {
 
     private static $table_name = 'SelfAssessment';
 
-	private static $hide_ancestor = 'RhinoAssessment';
+	private static $hide_ancestor = RhinoAssessment::class;
 
     private static $controller_name = SelfAssessmentController::class;
 
@@ -54,7 +54,7 @@ class SelfAssessment extends RhinoAssessment {
 		'TopLogo' => Image::class,
 		'FooterLogo' => Image::class
 	];
-	
+
 	private static $owns =[
 	    'Image',
         'TopLogo',
@@ -127,7 +127,6 @@ class SelfAssessment extends RhinoAssessment {
 	}
 
 	public function TotalQuestionCount() {
-
 		$count = $this->getQuestions()->Count();
 		// Add the Business Information step
 		// TODO: Remove this and the countering in js that is done to account for it

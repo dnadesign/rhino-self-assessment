@@ -118,26 +118,28 @@ class ResultTheme extends DataObject
 
         $collection = [];
 
-        $options = EditableSelfAssessmentOption::get()
-            // Get all the options which parent question are in this theme
-            // And which value has been submitted by user
-            ->filter([
-                'ParentID' => $this->Questions()->column('ID'),
-                'ID' => $submission->Values()->column('ParentOptionID')
-            ])
-            // Exclude options that do not have an advice
-            ->exclude(['Advice' => ''])
-            // Sort by Star Rating
-            ->sort('Rating ASC');
+        if ($this->Questions()->Count() > 0) {
+            $options = EditableSelfAssessmentOption::get()
+                // Get all the options which parent question are in this theme
+                // And which value has been submitted by user
+                ->filter([
+                    'ParentID' => $this->Questions()->column('ID'),
+                    'ID' => $submission->Values()->column('ParentOptionID')
+                ])
+                // Exclude options that do not have an advice
+                ->exclude(['Advice' => ''])
+                // Sort by Star Rating
+                ->sort('Rating ASC');
 
-        foreach ($options as $option) {
-            $advice = [
-                'Question' => $option->Title,
-                'Advice' => $option->dbObject('Advice'),
-                'Rating' => $option->Rating
-            ];
+            foreach ($options as $option) {
+                $advice = [
+                    'Question' => $option->Title,
+                    'Advice' => $option->dbObject('Advice'),
+                    'Rating' => $option->Rating
+                ];
 
-            array_push($collection, $advice);
+                array_push($collection, $advice);
+            }
         }
 
         return new ArrayList($collection);

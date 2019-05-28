@@ -16,6 +16,7 @@ use SilverStripe\Forms\Form;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldAddNewButton;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
+use SilverStripe\Forms\GridField\GridFieldEditButton;
 use SilverStripe\Forms\HTMLEditor\HTMLEditorField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\ToggleCompositeField;
@@ -101,6 +102,7 @@ class SelfAssessment extends RhinoAssessment {
 
         // Fields
         $formFields = $fields->dataFieldByName('Fields');
+        $fields->removeByName('FormFields');
         $this->modifyGridField($formFields);
         $fields->addFieldToTab('Root.Main', $formFields);
 
@@ -130,7 +132,7 @@ class SelfAssessment extends RhinoAssessment {
 
         $add->setButtonName('Request New Report');
 
-		$report_config->removeComponentsByType('GridFieldEditButton');
+		$report_config->removeComponentsByType(GridFieldEditButton::class);
 		$reports = GridField::create('Reports', 'Reports', $this->Reports(), $report_config);
 		$fields->addFieldToTab('Root.Reports', $reports);
 
@@ -138,7 +140,7 @@ class SelfAssessment extends RhinoAssessment {
 		$resultIntro->setRows(25);
 
         // Add DeleteTestData action to submission
-        $submissions = $fields->fieldByName('Root.Submissions.Submissions');
+        $submissions = $fields->dataFieldByName('Submissions');
         $config = $submissions->getConfig();
         $config->addComponent(new GridFieldRequestDeleteTestData());
 

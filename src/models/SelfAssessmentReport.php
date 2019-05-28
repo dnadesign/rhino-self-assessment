@@ -2,12 +2,14 @@
 
 namespace DNADesign\Rhino\Model;
 
+use DNADesign\Rhino\Fields\SelfAssessmentQuestion;
 use DNADesign\Rhino\Pagetypes\SelfAssessment;
-use DNADesign\Rhino\Reports\CreateSelfAssessmentReportJob;
+use DNADesign\Rhino\Jobs\CreateSelfAssessmentReportJob;
 use SilverStripe\Assets\File;
 use SilverStripe\Assets\Folder;
 use SilverStripe\Control\Email\Email;
 use SilverStripe\Core\Config\Config;
+use SilverStripe\Forms\DateField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\UserForms\Model\Submission\SubmittedFormField;
@@ -17,7 +19,7 @@ class SelfAssessmentReport extends DataObject
 {
     private static $default_task = 'CreateSelfAssessmentReportJob';
 
-    private static $field_classes_to_include = ['SelfAssessmentQuestion'];
+    private static $field_classes_to_include = [SelfAssessmentQuestion::class];
 
     private static $table_name = 'SelfAssessmentReport';
 
@@ -63,23 +65,13 @@ class SelfAssessmentReport extends DataObject
             'File'
         ]);
 
-        $from = $fields->fieldByName('Root.Main.SubmissionFrom');
-        $from->setHTML5(false);
-        $from->setDatetimeFormat('y-MM-dd');
+        $from = DateField::create('SubmissionFrom');
+        $from->setHTML5(true);
+        $fields->replaceField('SubmissionFrom', $from);
 
-        //TODO: SS4 - check not needed
-//        $from->getDateField()->setConfig('showcalendar', 1);
-//        $from->getDateField()->setValue(date('Y-m-d'));
-//        $from->getTimeField()->setValue('00:00:00');
-
-        $to = $fields->fieldByName('Root.Main.SubmissionTo');
-        $to->setHTML5(false);
-        $to->setDatetimeFormat('y-MM-dd');
-
-        //TODO: SS4 - check not needed
-//        $to->getDateField()->setConfig('showcalendar', 1);
-//        $to->getDateField()->setValue(date('Y-m-d'));
-//        $to->getTimeField()->setValue('23:59:00');
+        $to = DateField::create('SubmissionTo');
+        $to->setHTML5(true);
+        $fields->replaceField('SubmissionTo', $to);
 
         return $fields;
     }
@@ -87,11 +79,11 @@ class SelfAssessmentReport extends DataObject
     public function validate()
     {
         $valid = parent::validate();
-//
-//        if (!$this->getSubmissions() || !$this->getSubmissions()->exists()) {
-//            $valid = $valid->error('This report has no submission. Please change the date parameters and/or include test data. ');
-//        }
-//
+
+       if (!$this->getSubmissions() || !$this->getSubmissions()->exists()) {
+           $valid = $valid->addError('This report has no submission. Please change the date parameters and/or include test data. ');
+       }
+
         return $valid;
     }
 
@@ -141,13 +133,13 @@ class SelfAssessmentReport extends DataObject
             // Filter the requested date
             if ($this->SubmissionFrom) {
                 $submissions = $submissions->filter([
-                    'Created:GreaterThan' => $this->dbObject('SubmissionFrom')->format('y-MM-dd'),
+                    'Created:GreaterThan' => sprintf('%s 00:00:00', $this->dbObject('SubmissionFrom')->format('y-MM-dd'))
                 ]);
             }
 
             if ($this->SubmissionTo) {
                 $submissions = $submissions->filter([
-                    'Created:LessThan' => $this->dbObject('SubmissionTo')->format('y-MM-dd')
+                    'Created:LessThan' => sprintf('%s 23:59:59', $this->dbObject('SubmissionTo')->format('y-MM-dd'))
                 ]);
             }
 
@@ -164,7 +156,7 @@ class SelfAssessmentReport extends DataObject
     {
         $assessment = $this->Assessment();
         if ($assessment && $assessment->exists()) {
-            $fieldToReportOn = $assessment->Fields()->filter('ClassName', $this->stat('field_classes_to_include'));
+            $fieldToReportOn = $assessment->Fields()->filter('ClassName', $this->config()->field_classes_to_include);
 
             // Get sorted submissions
             $submissions = $this->getSubmissions();
@@ -182,36 +174,12 @@ class SelfAssessmentReport extends DataObject
         return null;
     }
 
-    public function find_or_create_file()
-    {
-        $filetitle = $this->file_title();
-        $folder = $this->file_folder();
-
-        $filename = ($folder && $filetitle) ? sprintf('%s%s', $folder->getFullPath(), $filetitle) : null;
-
-        if ($filename) {
-            $file = File::find($filename);
-
-            if (!$file) {
-                $file = new File();
-                $file->setFilename($filename);
-                $file->setParentID($folder->ID);
-                $file->write();
-            }
-
-            return $file;
-        }
-
-        return null;
-    }
-
-    public function file_folder()
+    public function file_path()
     {
         $assessment = $this->Assessment();
         if ($assessment && $assessment->exists()) {
-            $path = sprintf($this->stat('file_path'), $assessment->URLSegment);
-
-            return Folder::find_or_make($path);
+            $path = sprintf($this->config()->file_path, $assessment->URLSegment);
+            return $path;
         }
     }
 
@@ -238,7 +206,7 @@ class SelfAssessmentReport extends DataObject
         $fromEmail = Config::inst()->get('SiteConfig', 'selfassessment_email_from');
 
         $email = new Email();
-        $email->setFrom($fromEmail[0]);
+        $email->setFrom($fromEmail);
         $email->setTo($to);
         $email->setSubject($subject);
         $email->setBody(sprintf('The report for %s is ready. <a href="%s">Click here</a> to download it.',

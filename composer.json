@@ -9,7 +9,8 @@
 	],
 	"require": {
 		"silverstripe/framework": "^4",
-        "dnadesign/silverstripe-elemental-userforms": "^3"
+        "dnadesign/silverstripe-elemental-userforms": "^3",
+		"parsecsv/php-parsecsv": "^1.1"
     },
     "autoload": {
         "psr-4": {

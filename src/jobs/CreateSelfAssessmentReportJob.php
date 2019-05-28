@@ -1,11 +1,14 @@
 <?php
 
-namespace DNADesign\Rhino\Reports;
+namespace DNADesign\Rhino\Jobs;
 
-use SilverStripe\Assets\File;
 use DNADesign\Rhino\Model\SelfAssessmentReport;
+use ParseCsv\Csv;
+use SilverStripe\Assets\File;
+use SilverStripe\Assets\Folder;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBDatetime;
+use SilverStripe\UserForms\Model\Submission\SubmittedFormField;
 use Symbiote\QueuedJobs\Services\AbstractQueuedJob;
 use Symbiote\QueuedJobs\Services\QueuedJob;
 
@@ -67,6 +70,28 @@ class CreateSelfAssessmentReportJob extends AbstractQueuedJob implements QueuedJ
         return QueuedJob::QUEUED;
     }
 
+     /**
+     * By default the job descriptor is only ever updated when process() is
+     * finished, so for long running single tasks the user see's no process.
+     *
+     * This method manually updates the count values on the QueuedJobDescriptor
+     */
+    public function updateJobDescriptor()
+    {
+        if (!$this->descriptor && $this->jobDescriptorId) {
+            $this->descriptor = QueuedJobDescriptor::get()->byId($this->jobDescriptorId);
+        }
+
+        // rate limit the updater to only 1 query every sec, our front end only
+        // updates every 1s as well.
+        if ($this->descriptor && (!$this->lastUpdatedDescriptor || $this->lastUpdatedDescriptor < (strtotime('-1 SECOND')))) {
+            Injector::inst()->get(QueuedJobProgressService::class)
+                ->copyJobToDescriptor($this, $this->descriptor);
+
+            $this->lastUpdatedDescriptor = time();
+        }
+    }
+
     /**
      * Retrieve all the organisation that do not have an annual report yet
      */
@@ -74,11 +99,10 @@ class CreateSelfAssessmentReportJob extends AbstractQueuedJob implements QueuedJ
     {
         $report = $this->getReport();
 
-        $remainingChildren = $report->getSubmittedFields()->column('ID');
-        $this->remainingChildren = $remainingChildren;
-
-        $fileObj = $report->find_or_create_file();
-        $filename = ($fileObj) ? $fileObj->getFullPath() : null;
+        // Create File assets
+        $this->filename = $report->file_title();
+        $this->writablePath = ASSETS_PATH.'/temp-'.$this->filename;
+        $this->folderPath = $report->file_path();
 
         $csvHeader = [
             'Tool Title',
@@ -92,23 +116,15 @@ class CreateSelfAssessmentReportJob extends AbstractQueuedJob implements QueuedJ
             'UserEmail'
         ];
 
-        // If file does not exists yet, create it and add the csv headers
-        if (!file_exists($filename)) {
-            if ($file = fopen($filename, 'w')) {
-                fwrite($file, implode(',', $csvHeader) . PHP_EOL);
-                fclose($file);
-                $this->addMessage('Created CSV file ' . $filename, 'INFO');
-            } else {
-                $this->addMessage('Unable to create CSV file!', 'WARNING');
-            }
-        } else {
-            $this->addMessage('File already exists!', 'WARNING');
-            $this->remainingChildren = [];
-            $this->isComplete = true;
-        }
+        // Write CSV
+        $csv = new Csv();
+        $csv->save($this->writablePath, array(array_values($csvHeader)), true);
 
-        $this->csvFilename = $filename;
-        $this->FileObjID = $fileObj->ID;
+        $this->addMessage('Will write CSV file in: '.$this->writablePath);
+
+        // Set up remaining children
+        $remainingChildren = $report->getSubmittedFields()->column('ID');
+        $this->remainingChildren = $remainingChildren;
     }
 
     /**
@@ -129,6 +145,35 @@ class CreateSelfAssessmentReportJob extends AbstractQueuedJob implements QueuedJ
         if (!count($remainingChildren)) {
             $this->isComplete = true;
 
+            $folder = Folder::find_or_make($this->folderPath);
+            $path = File::join_paths($folder->getFilename(), $this->filename);
+
+            $file = new File();
+            $file->ParentID = $folder->ID;
+            $file->setFromLocalFile($this->writablePath, $path);
+            $file->write();
+            $file->publishRecursive();
+
+            unlink($this->writablePath);
+
+            if ($file && $file->exists()) {
+                $this->addMessage('CSV can be downloaded here:');
+                $this->addMessage($file->AbsoluteLink());
+                // record File ID for FileFromQueuedJobController
+                $this->FileID = $file->ID;
+            }
+
+            if ($report) {
+                $report->Status = 'Done';
+                $report->Completed = DBDatetime::now();
+                $report->FileID = $file->ID;
+                $report->write();
+
+                $report->sendNotificationEmail();
+            }
+
+            $this->updateJobDescriptor();
+
             return;
         }
 
@@ -140,7 +185,7 @@ class CreateSelfAssessmentReportJob extends AbstractQueuedJob implements QueuedJ
         $ID = array_shift($remainingChildren);
 
         // get the field
-        $answer = DataObject::get_by_id('SubmittedFormField', $ID);
+        $answer = DataObject::get_by_id(SubmittedFormField::class, $ID);
         // And the question
         $question = ($answer && $answer->exists()) ? $answer->getParentEditableFormField() : null;
 
@@ -163,16 +208,9 @@ class CreateSelfAssessmentReportJob extends AbstractQueuedJob implements QueuedJ
                 $submission->UserEmail
             ];
 
-            if ($file = fopen($this->csvFilename, 'a')) {
-                fputcsv($file, $line);
-                fclose($file);
-            } else {
-                $message = 'Could not write ' . $this->csvFilename;
-                $this->addMessage($message, 'WARNING');
-
-                // TODO: SS4 - logging
-//				SS_Log::log($message, SS_Log::WARN);
-            }
+            // Write CSV
+            $csv = new Csv();
+            $csv->save($this->writablePath, array(array_values($line)), true);
 
             $answer->destroy();
             unset($answer);
@@ -189,34 +227,10 @@ class CreateSelfAssessmentReportJob extends AbstractQueuedJob implements QueuedJ
         } else {
             $message = 'Could not find Answer or Question for Answer ID: ' . $ID;
             $this->addMessage($message, 'WARNING');
-
-            // TODO: SS4 - logging
-//			SS_Log::log($message , SS_Log::WARN);
         }
 
         // and now we store the new list of remaining children
         $this->remainingChildren = $remainingChildren;
-
-        if (!count($remainingChildren)) {
-
-            // Create a file object
-            $file = File::get()->byID($this->FileObjID);
-            $file->updateFilesystem();
-
-            if ($report) {
-                $report->Status = 'Done';
-                $report->Completed = DBDatetime::now();
-                $report->FileID = $file->ID;
-                $report->write();
-
-                $report->sendNotificationEmail();
-            }
-
-            $this->addMessage('Done!');
-            $this->isComplete = true;
-
-            return;
-        }
     }
 
 }

@@ -2,6 +2,7 @@
 
 namespace DNADesign\Rhino\Fields;
 
+use DNADesign\Rhino\Fields\EditableMultiChoiceOption;
 use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\RequiredFields;
 

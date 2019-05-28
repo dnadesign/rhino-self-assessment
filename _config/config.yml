@@ -2,10 +2,7 @@
 Name: selfassessment
 After: 'rhino#extensions'
 ---
-
 DNADesign\Rhino\Pagetypes\SelfAssessment:
-  extensions:
-    - DNADesign\Rhino\Extensions\SelfAssessmentExtension
   allowed_field_types:
     - DNADesign\Rhino\Fields\SelfAssessmentQuestion
 

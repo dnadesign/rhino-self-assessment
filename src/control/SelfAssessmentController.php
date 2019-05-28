@@ -2,8 +2,10 @@
 
 namespace DNADesign\Rhino\Control;
 
+use Cert\Pagetypes\ElementalPage;
 use DNADesign\Elemental\Models\ElementalArea;
 use DNADesign\Rhino\Elements\ElementSelfAssessment;
+use DNADesign\Rhino\Forms\RhinoUserForm;
 use DNADesign\Rhino\Model\SelfAssessmentSubmission;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Email\Email;
@@ -15,9 +17,9 @@ use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Security\Security;
-use DNADesign\Rhino\Forms\RhinoUserForm;
 use SilverStripe\UserForms\Form\UserForm;
 use SilverStripe\View\Requirements;
+use PageController;
 
 class SelfAssessmentController extends RhinoAssessmentController
 {
@@ -70,12 +72,17 @@ class SelfAssessmentController extends RhinoAssessmentController
     public function FormPreview()
     {
         $element = new ElementSelfAssessment();
-        $element->FormID = $this->ID;
+        $element->SelfAssessemntID = $this->ID;
 
         $area = new ElementalArea();
-        $area->Widgets()->add($element);
+        $area->Elements()->add($element);
 
-        return $area;
+        $page = new ElementalPage();
+        $page->ElementalArea = $area;
+
+        $controller = new PageController($page);
+
+        return $controller->render();
     }
 
     /**

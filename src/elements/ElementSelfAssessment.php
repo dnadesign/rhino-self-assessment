@@ -2,14 +2,15 @@
 
 namespace DNADesign\Rhino\Elements;
 
-use DNADesign\ElementalUserForms\Model\ElementForm;
+use DNADesign\Elemental\Models\BaseElement;
 use DNADesign\Rhino\Control\SelfAssessmentController;
 use DNADesign\Rhino\Pagetypes\SelfAssessment;
+use SilverStripe\Control\Controller;
 
 /**
  * @package elemental
  */
-class ElementSelfAssessment extends ElementForm
+class ElementSelfAssessment extends BaseElement
 {
     private static $title = "Self Assessment Element";
 
@@ -22,7 +23,7 @@ class ElementSelfAssessment extends ElementForm
     private static $table_name = 'ElementSelfAssessment';
 
     private static $has_one = array(
-        'Form' => SelfAssessment::class
+        'SelfAssessemnt' => SelfAssessment::class
     );
 
     public function getCMSFields()
@@ -41,15 +42,15 @@ class ElementSelfAssessment extends ElementForm
 
     public function ElementForm()
     {
-        if ($this->Form()->exists()) {
+        if ($this->SelfAssessemnt()->exists()) {
 
-            $controller = SelfAssessmentController::create($this->Form());
+            $controller = new SelfAssessmentController($this->SelfAssessemnt());
 
             // We want to redirect to the result page upon submission
             // so do render the element controller when the "finished" action
             // is detected as opposed to ElementUserDefinedForm
-
             $form = $controller->Form();
+            $form->setFormAction(Controller::join_links($controller->Link(), 'Form'));
 
             return $form;
         }

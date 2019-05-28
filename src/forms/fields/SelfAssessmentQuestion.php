@@ -2,14 +2,16 @@
 
 namespace DNADesign\Rhino\Fields;
 
+use DNADesign\Rhino\Fields\EditableMultiChoiceField;
+use DNADesign\Rhino\Fields\EditableSelfAssessmentOption;
 use DNADesign\Rhino\Model\ResultTheme;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\File;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldAddExistingAutocompleter;
 use SilverStripe\Forms\GridField\GridFieldConfig_RelationEditor;
 use SilverStripe\Forms\HTMLEditor\HTMLEditorField;
 use SilverStripe\Forms\TextField;
-use SilverStripe\Forms\GridField\GridField;
-use SilverStripe\Forms\GridField\GridFieldAddExistingAutocompleter;
 
 class SelfAssessmentQuestion extends EditableMultiChoiceField
 {
@@ -70,11 +72,6 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
         $image->setAllowedExtensions(['svg', 'jpg', 'jpeg', 'png']);
         $image->getValidator()->setAllowedMaxFileSize('2M');
         $fields->addFieldToTab('Root.Tidbit', $image);
-        
-        $optionsConfig = GridFieldConfig_RelationEditor::create();
-        $optionsGrid = GridField::create('Options', 'Options', $this->Options(), $optionsConfig);
-        $optionsConfig->removeComponentsByType(GridFieldAddExistingAutocompleter::class);
-        $fields->addFieldToTab('Root.Main', $optionsGrid);
 
         return $fields;
     }

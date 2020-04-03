@@ -67,8 +67,10 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
         $tidbit = HTMLEditorField::create('Tidbit', 'Tidbit');
         $fields->addFieldsToTab('Root.Tidbit', [$tidbitTitle, $tidbit]);
 
-        $image = UploadField::create('TidbitImage',
-            'Tidbit Image')->setDescription('Square ratio. SVG recommended. Minimum size 300x300px.');
+        $image = UploadField::create(
+            'TidbitImage',
+            'Tidbit Image'
+        )->setDescription('Square ratio. SVG recommended. Minimum size 300x300px.');
         $image->setAllowedExtensions(['svg', 'jpg', 'jpeg', 'png']);
         $image->getValidator()->setAllowedMaxFileSize('2M');
         $fields->addFieldToTab('Root.Tidbit', $image);
@@ -98,14 +100,22 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
         $field->customise([
             'Image' => $this->Image(),
             'TidbitTitle' => $this->TidbitTitle,
-            'Tidbit' => $this->Tidbit,
+            'Tidbit' => $this->dbObject('Tidbit'),
             'TidbitImage' => $this->TidbitImage(),
             'ResultTheme' => $this->ResultTheme(),
             'SelfAssessmentTitle' => $this->Parent()->Title,
-            'TotalQuestionCount' => $this->Parent()->TotalQuestionCount()
+            'TotalQuestionCount' => $this->Parent()->TotalQuestionCount(),
+            'Options' => $this->Options(),
+            'Last' => $this->getIsLastQuestion()
         ]);
 
         return $field;
+    }
+
+    public function getIsLastQuestion()
+    {
+        $fields = $this->Parent()->Fields()->column('ID');
+        return array_search($this->ID, $fields) === count($fields) - 1;
     }
 
     /**

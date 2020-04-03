@@ -2,14 +2,16 @@
 
 namespace DNADesign\Rhino\Control;
 
-use Cert\Pagetypes\ElementalPage;
+use DNADesign\Elemental\Extensions\ElementalPageExtension;
 use DNADesign\Elemental\Models\ElementalArea;
 use DNADesign\Rhino\Elements\ElementSelfAssessment;
 use DNADesign\Rhino\Forms\RhinoUserForm;
 use DNADesign\Rhino\Model\SelfAssessmentSubmission;
+use PageController;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Email\Email;
 use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Core\ClassInfo;
 use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
@@ -17,18 +19,26 @@ use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Security\Security;
-use SilverStripe\UserForms\Form\UserForm;
+use SilverStripe\View\ArrayData;
 use SilverStripe\View\Requirements;
-use PageController;
 
 class SelfAssessmentController extends RhinoAssessmentController
 {
+    public $IncludeFormTag = false;
+
     private static $allowed_actions = [
         'Form',
         'EmailSignupForm'
     ];
 
-    public $IncludeFormTag = false;
+    private static $submission_template = 'DNADesign\Rhino\Layout\SelfAssessment_finished';
+
+    public function init()
+    {
+        parent::init();
+
+        Requirements::javascript('dnadesign/rhino-self-assessment:resources/js/self-assessment.src.js');
+    }
 
     /**
      * The public should not be able to access this page directly, instead Redirect them to the first element
@@ -39,11 +49,11 @@ class SelfAssessmentController extends RhinoAssessmentController
         $loggedIn = Security::getCurrentUser();
 
         if ($loggedIn) {
-            return parent::index();
+            return $this->FormPreview();
         }
 
         // Find widget with this tool
-        $element = ElementSelfAssessment::get()->filter('FormID', $this->ID)->First();
+        $element = ElementSelfAssessment::get()->filter('SelfAssessmentID', $this->ID)->First();
         if ($element) {
             $page = $element->getPage();
             if ($page) {
@@ -77,11 +87,25 @@ class SelfAssessmentController extends RhinoAssessmentController
         $area = new ElementalArea();
         $area->Elements()->add($element);
 
-        $page = new ElementalPage();
+        $classes = ClassInfo::getValidSubClasses();
+        $elementalPageClass = array_filter($classes, function ($class) {
+            $object = singleton($class);
+            if (method_exists($object, 'hasExtension')) {
+                return singleton($class)->hasExtension(ElementalPageExtension::class);
+            }
+            return false;
+        });
+
+        if (empty($elementalPageClass)) {
+            return user_error('No elemental page exists.');
+        }
+
+        $class = array_shift($elementalPageClass);
+
+        $page = new  $class();
         $page->ElementalArea = $area;
 
         $controller = new PageController($page);
-
         return $controller->render();
     }
 
@@ -104,8 +128,10 @@ class SelfAssessmentController extends RhinoAssessmentController
         }
 
         $actions = new FieldList([
-            FormAction::create('processEmailSignup',
-                'Email me a link')->setUseButtonTag(true)->addExtraClass('pure-button self-assessment-button')
+            FormAction::create(
+                'processEmailSignup',
+                'Email me a link'
+            )->setUseButtonTag(true)->addExtraClass('pure-button self-assessment-button')
         ]);
 
         $required = new RequiredFields(['Email']);

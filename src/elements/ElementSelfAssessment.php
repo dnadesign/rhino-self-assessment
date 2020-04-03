@@ -23,7 +23,7 @@ class ElementSelfAssessment extends BaseElement
     private static $table_name = 'ElementSelfAssessment';
 
     private static $has_one = array(
-        'SelfAssessemnt' => SelfAssessment::class
+        'SelfAssessment' => SelfAssessment::class
     );
 
     public function getCMSFields()
@@ -42,9 +42,10 @@ class ElementSelfAssessment extends BaseElement
 
     public function ElementForm()
     {
-        if ($this->SelfAssessemnt()->exists()) {
+        if ($this->SelfAssessment()->exists()) {
 
-            $controller = new SelfAssessmentController($this->SelfAssessemnt());
+            $controller = new SelfAssessmentController($this->SelfAssessment());
+            $controller->init();
 
             // We want to redirect to the result page upon submission
             // so do render the element controller when the "finished" action

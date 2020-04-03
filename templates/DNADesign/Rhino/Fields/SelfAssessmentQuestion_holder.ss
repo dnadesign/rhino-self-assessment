@@ -19,8 +19,18 @@
 					<% if $TidbitTitle %><h3>$TidbitTitle</h3><% end_if %>
 					$Tidbit
 				</div>
-
-				<button type="button" class="pure-button pure-button--primary self-assessment-button self-assessment-button--block" data-self-assessment-next-button data-self-assessment-title="$SelfAssessmentTitle">Next</button>
+				
+				<% if not $Last %>
+					<button type="button" class="pure-button pure-button--primary self-assessment-button self-assessment-button--block" data-self-assessment-next-button data-self-assessment-title="$SelfAssessmentTitle">Next</button>
+				<% else %>
+					<button type="submit" class="pure-button pure-button--primary  self-assessment-button self-assessment-button--results" data-self-assessment-results-button data-self-assessment-title="$Top.Controller.Title">
+						<% if $Top.Controller.SubmitButtonText %>
+							$Top.Controller.SubmitButtonText
+						<% else %>
+							Show my results
+						<% end_if %>
+					</button>
+				<% end_if %>
 			</div>
 		</div>
 	<% end_if %>
@@ -48,16 +58,17 @@
 					<div class="pure-u-1 pure-u-lg-1-2">
 						<div class="self-assessment-question-options">
 							$Field
-
-							<button type="button" class="pure-button pure-button--primary self-assessment-button self-assessment-button--block" data-self-assessment-submit-button>Submit</button>
-
-							<button type="submit" class="pure-button pure-button--primary  self-assessment-button self-assessment-button--results" data-self-assessment-results-button data-self-assessment-title="$Top.Controller.Title">
-								<% if $Top.Controller.SubmitButtonText %>
-									$Top.Controller.SubmitButtonText
-								<% else %>
-									Show my results
-								<% end_if %>
-							</button>
+							<% if $Last && not $Tidbit %>
+								<button type="submit" class="pure-button pure-button--primary  self-assessment-button self-assessment-button--results" data-self-assessment-results-button data-self-assessment-title="$Top.Controller.Title">
+									<% if $Top.Controller.SubmitButtonText %>
+										$Top.Controller.SubmitButtonText
+									<% else %>
+										Show my results
+									<% end_if %>
+								</button>
+							<% else %>
+								<button type="button" class="pure-button pure-button--primary self-assessment-button self-assessment-button--block" data-self-assessment-submit-button>Submit</button>
+							<% end_if %>
 						</div>
 					</div>
 				</div>

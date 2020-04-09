@@ -3,8 +3,10 @@
 namespace DNADesign\Rhino\Pagetypes;
 
 use DNADesign\Rhino\Control\SelfAssessmentController;
-use DNADesign\Rhino\Gridfield\GridFieldRequestDeleteTestData;
+use DNADesign\Rhino\Elements\ElementSelfAssessment;
+use DNADesign\Rhino\Fields\SelfAssessmentQuestion;
 use DNADesign\Rhino\Gridfield\GridfieldDownloadReportButton;
+use DNADesign\Rhino\Gridfield\GridFieldRequestDeleteTestData;
 use DNADesign\Rhino\Model\ResultTheme;
 use DNADesign\Rhino\Model\SelfAssessmentReport;
 use DNADesign\Rhino\Model\SelfAssessmentSubmission;
@@ -12,12 +14,16 @@ use GraphQL\Error\Debug;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\Image;
 use SilverStripe\Control\Controller;
+use SilverStripe\Forms\CompositeField;
+use SilverStripe\Forms\FieldGroup;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldAddNewButton;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use SilverStripe\Forms\GridField\GridFieldEditButton;
 use SilverStripe\Forms\HTMLEditor\HTMLEditorField;
+use SilverStripe\Forms\LabelField;
+use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\ToggleCompositeField;
 use SilverStripe\UserForms\Form\GridFieldAddClassesButton;
@@ -95,7 +101,7 @@ class SelfAssessment extends RhinoAssessment
         ]);
 
         // Start Screen
-        $title = Textfield::create('StartTitle', 'Title');
+        $title = TextField::create('StartTitle', 'Title');
         $image = UploadField::create('Image', 'Image')
             ->setAllowedExtensions(['svg', 'jpg', 'jpeg', 'png']);
         $image->getValidator()->setAllowedMaxFileSize('2M');
@@ -107,7 +113,28 @@ class SelfAssessment extends RhinoAssessment
         $formFields = $fields->dataFieldByName('Fields');
         $fields->removeByName('FormFields');
         $this->modifyGridField($formFields);
-        $fields->addFieldToTab('Root.Main', $formFields);
+        $fields->addFieldToTab('Root.Questions', $formFields);
+
+        // Links
+        // Find widget with this tool
+        if ($this->isInDB()) {
+            $elements = ElementSelfAssessment::get()->filter('SelfAssessmentID', $this->ID);
+            if ($elements && $elements->exists()) {
+                $links = new FieldGroup('Preview on');
+                $linkList = [];
+                foreach ($elements as $element) {
+                    $page = $element->getPage();
+                    if ($page && $page->ID !== $this->ID) {
+                        $link = Controller::join_links($page->AbsoluteLink(), '#e' . $element->ID);
+                        array_push($linkList, sprintf('<div class="message"><a href="%s" target="_blank">%s</a></div>', $link, $page->Breadcrumbs(20, true)));
+                    }
+                }
+                if (!empty($linkList)) {
+                    $links->push(LiteralField::create('PreviewLinks', implode('', $linkList)));
+                    $fields->insertAfter('URLSegment', $links);
+                }
+            }
+        }
 
         // Result screen + Themes
         $resultTitle = TextField::create('ResultTitle')
@@ -188,37 +215,32 @@ class SelfAssessment extends RhinoAssessment
         }
     }
 
-    /**
-     * We don't want to be able to save a SelfAssesment which contains questions without a title Title field is required
-     * on SelfAssessmentQuestion but because of inline editing, it is possible to save the page with blank question
-     */
-    public function validate()
-    {
-        $result = parent::validate();
-
-        if ($this->isInDB()) {
-
-            // Look for fields without a title
-            $blankFields = $this->owner->Fields()->where('Title IS NULL')->Count();
-
-            if ($blankFields > 0) {
-                $result->addError("Questions must have a title ($blankFields missing)", 'validation');
-            }
-        }
-
-        return $result;
-    }
-
     public function getResultPageTitle()
     {
-        return sprintf('My %s Results', ucwords($this->Title));
+        return ($this->ResultTitle) ? $this->ResultTitle : sprintf('My %s Results', ucwords($this->Title));
     }
 
-    public function TotalQuestionCount()
+    public function getHasStartStep()
     {
-        $count = $this->getQuestions()->Count();
-        // Add the Business Information step
-        // TODO: Remove this and the countering in js that is done to account for it
-        return $count + 1;
+        return $this->StartTitle || $this->StartContent || $this->EstimatedTime || $this->Image()->exists();
+    }
+
+    /**
+     * Account for Start screen + each question + each tidbit
+     * Note: this is zero based
+     *
+     * @return void
+     */
+    public function getTotalStepCount()
+    {
+        $count = ($this->getHasStartStep()) ? 1 : 0;
+        $questions = $this->getQuestions();
+        foreach ($questions as $question) {
+            $count += ($question->getHasTidbit()) ? 2 : 1;
+        }
+
+        $this->extend('updateTotalStepCount', $count);
+
+        return $count - 1;
     }
 }

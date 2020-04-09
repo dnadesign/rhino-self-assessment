@@ -26,42 +26,25 @@ class SelfAssessmentController extends RhinoAssessmentController
 {
     public $IncludeFormTag = false;
 
+    private static $include_default_javascript = true;
+
+    private static $include_default_css = true;
+
     private static $allowed_actions = [
         'Form',
         'EmailSignupForm'
     ];
 
-    private static $submission_template = 'DNADesign\Rhino\Layout\SelfAssessment_finished';
-
     public function init()
     {
         parent::init();
 
-        Requirements::javascript('dnadesign/rhino-self-assessment:resources/js/self-assessment.src.js');
-    }
-
-    /**
-     * The public should not be able to access this page directly, instead Redirect them to the first element
-     * that reference this assessment. If a user exists, we ar elogged in, so we should see the preview
-     */
-    public function index(HTTPRequest $request = null)
-    {
-        $loggedIn = Security::getCurrentUser();
-
-        if ($loggedIn) {
-            return $this->FormPreview();
+        if ($this->config()->include_default_javascript) {
+            Requirements::javascript('dnadesign/rhino-self-assessment:resources/js/self-assessment.src.js');
         }
-
-        // Find widget with this tool
-        $element = ElementSelfAssessment::get()->filter('SelfAssessmentID', $this->ID)->First();
-        if ($element) {
-            $page = $element->getPage();
-            if ($page) {
-                return $this->redirect(Controller::join_links($page->AbsoluteLink(), '#e' . $element->ID));
-            }
+        if ($this->config()->include_default_css) {
+            Requirements::css('dnadesign/rhino-self-assessment:resources/css/self-assessment.css');
         }
-
-        return $this->httpError(404);
     }
 
     /**
@@ -77,39 +60,6 @@ class SelfAssessmentController extends RhinoAssessmentController
     }
 
     /**
-     * Simulate the Element to render form on the form page itself only when a user is logged in
-     */
-    public function FormPreview()
-    {
-        $element = new ElementSelfAssessment();
-        $element->SelfAssessemntID = $this->ID;
-
-        $area = new ElementalArea();
-        $area->Elements()->add($element);
-
-        $classes = ClassInfo::getValidSubClasses();
-        $elementalPageClass = array_filter($classes, function ($class) {
-            $object = singleton($class);
-            if (method_exists($object, 'hasExtension')) {
-                return singleton($class)->hasExtension(ElementalPageExtension::class);
-            }
-            return false;
-        });
-
-        if (empty($elementalPageClass)) {
-            return user_error('No elemental page exists.');
-        }
-
-        $class = array_shift($elementalPageClass);
-
-        $page = new  $class();
-        $page->ElementalArea = $area;
-
-        $controller = new PageController($page);
-        return $controller->render();
-    }
-
-    /**
      * Form displayed on result page to allow user to email the result page link to themselves
      *
      * @return Form
@@ -117,8 +67,7 @@ class SelfAssessmentController extends RhinoAssessmentController
     public function EmailSignupForm()
     {
         $fields = new FieldList([
-            $email = EmailField::create('Email', '')->setAttribute('placeholder', 'Enter your email address'),
-            $redirect = HiddenField::create('RedirectURL', 'RedirectURL')
+            EmailField::create('Email', '')->setAttribute('placeholder', 'Enter your email address')
         ]);
 
         // Need to include the details about the submission, because they won't be in the url upon submissions.
@@ -131,7 +80,7 @@ class SelfAssessmentController extends RhinoAssessmentController
             FormAction::create(
                 'processEmailSignup',
                 'Email me a link'
-            )->setUseButtonTag(true)->addExtraClass('pure-button self-assessment-button')
+            )->setUseButtonTag(true)->addExtraClass('self-assessment-button')
         ]);
 
         $required = new RequiredFields(['Email']);
@@ -144,7 +93,6 @@ class SelfAssessmentController extends RhinoAssessmentController
     public function processEmailSignup($data, $form)
     {
         $email = (isset($data['Email'])) ? $data['Email'] : null;
-        $name = (isset($data['Name'])) ? $data['Name'] : null;
         $submissionID = (isset($data['SubmissionUID'])) ? $data['SubmissionUID'] : null;
 
         if ($email && $submissionID) {
@@ -155,13 +103,9 @@ class SelfAssessmentController extends RhinoAssessmentController
                 $submission->UserEmail = $email;
                 $submission->write();
                 // Send email
-                $this->sendLinkViaEmail($submission, $email, $name);
-
-                if (!empty($data['RedirectURL'])) {
-                    return $this->redirect($data['RedirectURL']);
-                }
-
-                return $this->redirect(Controller::join_links($submission->getLink(), '?signup=1'));
+                $this->sendLinkViaEmail($submission, $email);
+                // Redirect to result page with flag
+                return $this->redirect(Controller::join_links($submission->getLink(), '?sent=1'));
             }
 
             return $this->htppError(404);
@@ -173,7 +117,7 @@ class SelfAssessmentController extends RhinoAssessmentController
     /**
      * Send an email to the user with the link to this submission
      */
-    private function sendLinkViaEmail($submission, $emailAddress, $name)
+    private function sendLinkViaEmail($submission, $emailAddress)
     {
         $link = $submission->getLink();
 
@@ -181,21 +125,24 @@ class SelfAssessmentController extends RhinoAssessmentController
         $email->setFrom($this->data()->ContactEmail);
         $email->setTo($emailAddress);
         $email->setSubject($this->data()->getResultPageTitle());
-        $email->setTemplate('SelfAssessmentResultsEmail');
+        $email->setHTMLTemplate('DNADesign\Rhino\SelfAssessmentResultsEmail');
 
         $data = [
-            'Name' => $name,
             'Link' => $link,
-            'TopLogo' => $this->TopLogo(),
-            'FooterLogo' => $this->FooterLogo(),
-            'IntroText' => $this->data()->ResultEmailIntroText,
-            'Text' => $this->data()->ResultEmailText,
+            'Text' => $this->data()->ResultEmailText
         ];
 
-        Requirements::clear();
-        $email->populateTemplate($data);
-        Requirements::restore();
-
+        $email->setData($data);
         $email->send();
+    }
+
+    /**
+     * Check if email has been sent
+     * 
+     * @return Boolean
+     */
+    public function getEmailSent()
+    {
+        return $this->getRequest()->getVar('sent');
     }
 }

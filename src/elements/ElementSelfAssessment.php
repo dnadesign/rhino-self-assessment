@@ -16,10 +16,6 @@ class ElementSelfAssessment extends BaseElement
 
     private static $enable_title_in_template = true;
 
-    // Using the HTML5 module in conjunction with elemental and using $SVG() in the elements template gave an error on
-    // save (`getelementsbytagname does not exist on SS_HTML5Value`).
-    private static $exclude_from_content = true;
-
     private static $table_name = 'ElementSelfAssessment';
 
     private static $has_one = array(

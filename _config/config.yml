@@ -5,6 +5,8 @@ After: 'rhino#extensions'
 DNADesign\Rhino\Pagetypes\SelfAssessment:
   allowed_field_types:
     - DNADesign\Rhino\Fields\SelfAssessmentQuestion
+  extensions:
+    - DNADesign\Elemental\Extensions\ElementalPageExtension
 
 DNADesign\Rhino\Model\SelfAssessmentReport:
   extensions:

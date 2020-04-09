@@ -67,8 +67,7 @@ class GridfieldDownloadReportButton implements GridField_ColumnProvider, GridFie
                 if ($report) {
                     $file = $report->File();
                     if ($file->exists()) {
-                        $content = file_get_contents($file->getFullPath());
-
+                        $content = file_get_contents($file->AbsoluteLink());
                         return HTTPRequest::send_file($content, $file->FileName);
                     }
                 }

@@ -80,9 +80,9 @@ class SelfAssessmentReport extends DataObject
     {
         $valid = parent::validate();
 
-       if (!$this->getSubmissions() || !$this->getSubmissions()->exists()) {
-           $valid = $valid->addError('This report has no submission. Please change the date parameters and/or include test data. ');
-       }
+        if (!$this->getSubmissions() || !$this->getSubmissions()->exists()) {
+            $valid = $valid->addError('This report has no submission. Please change the date parameters and/or include test data. ');
+        }
 
         return $valid;
     }
@@ -117,7 +117,7 @@ class SelfAssessmentReport extends DataObject
 
         if ($this->Status == 'Pending' && $this->SubmissionCount > 0) {
             $job = new CreateSelfAssessmentReportJob($this->ID);
-            singleton(QueuedJobService::class)->queueJob($job);
+            QueuedJobService::singleton()->queueJob($job);
         }
     }
 
@@ -187,9 +187,13 @@ class SelfAssessmentReport extends DataObject
     {
         $assessment = $this->Assessment();
         if ($assessment && $assessment->exists()) {
-            return sprintf('%s(%s)--%s--to--%s.csv', $assessment->URLSegment, $this->ID,
+            return sprintf(
+                '%s(%s)--%s--to--%s.csv',
+                $assessment->URLSegment,
+                $this->ID,
                 $this->dbObject('SubmissionFrom')->Format('y-MM-dd'),
-                $this->dbObject('SubmissionTo')->Format('y-MM-dd'));
+                $this->dbObject('SubmissionTo')->Format('y-MM-dd')
+            );
         }
     }
 
@@ -209,8 +213,11 @@ class SelfAssessmentReport extends DataObject
         $email->setFrom($fromEmail);
         $email->setTo($to);
         $email->setSubject($subject);
-        $email->setBody(sprintf('The report for %s is ready. <a href="%s">Click here</a> to download it.',
-            $this->Assessment()->Title, $this->File()->AbsoluteLink()));
+        $email->setBody(sprintf(
+            'The report for %s is ready. <a href="%s">Click here</a> to download it.',
+            $this->Assessment()->Title,
+            $this->File()->AbsoluteLink()
+        ));
 
         $email->send();
     }

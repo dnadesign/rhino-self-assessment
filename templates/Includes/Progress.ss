@@ -1,3 +1,3 @@
 <div class="self-assessment-progress">
-	<progress max="$Max" value="1"></progress>
+	<progress max="$Max" value="0"></progress>
 </div>

@@ -9,8 +9,9 @@
 	],
 	"require": {
 		"silverstripe/framework": "^4",
-        "dnadesign/silverstripe-elemental-userforms": "^3",
-		"parsecsv/php-parsecsv": "^1.1"
+		"dnadesign/silverstripe-elemental": "^4",
+		"symbiote/silverstripe-queuedjobs": "^4",
+		"parsecsv/php-parsecsv": "^1.1"		
 	},
 	"extra": {
         "expose": [

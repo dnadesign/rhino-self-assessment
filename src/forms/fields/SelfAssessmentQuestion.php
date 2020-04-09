@@ -103,11 +103,12 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
             'Tidbit' => $this->dbObject('Tidbit'),
             'TidbitImage' => $this->TidbitImage(),
             'ResultTheme' => $this->ResultTheme(),
-            'SelfAssessmentTitle' => $this->Parent()->Title,
-            'TotalQuestionCount' => $this->Parent()->TotalQuestionCount(),
             'Options' => $this->Options(),
-            'Last' => $this->getIsLastQuestion()
+            'Last' => $this->getIsLastQuestion(),
+            'HasTidbit' => $this->getHasTidbit()
         ]);
+
+        $this->extend('updateFormField', $field);
 
         return $field;
     }
@@ -142,5 +143,14 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
         }
 
         return null;
+    }
+
+    /**
+     * Helper to figure out if a tidbit should be displayed.
+     * We can allow for just a title / content / image or a combination of the either 3
+     */
+    public function getHasTidbit()
+    {
+        return $this->TidbitTitle || $this->Tidbit || ($this->TidbitImage() && $this->TidbitImage()->exists());
     }
 }

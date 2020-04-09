@@ -1,0 +1,74 @@
+.self-assessment-step {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #eeeeee;
+    box-sizing: border-box;
+}
+
+/* Visibility states */
+.element-self-assessment.initialised .self-assessment-step:not(.active) {
+    display: none;
+}
+
+/* Styling adjustements */
+.self-assessment-image img {
+    max-width: 100%;
+}
+
+.self-assessment-progress progress {
+    width: 100%;
+}
+
+/* Clearfix */
+.self-assessment-step::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/* Start */
+.self-assessment-start-time {
+    display: flex;
+    align-items: center;
+}
+
+.self-assessment-start-time  .timer-icon {
+    margin-right: 5px;
+}
+
+/* Results */
+.self-assessment-theme {
+    padding: 10px;
+    border: 1px solid #eeeeee;
+}
+
+.self-assessment-theme + .self-assessment-theme {
+    margin-top: 15px;
+}
+
+.rating--visual .star {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border: 1px solid black;
+    border-radius: 50%;
+}
+
+.rating--visual .star--full {
+    background-color: black;
+}
+
+.rating--textual {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    border: 0;
+}
+
+.self-assessment-results-form {
+    padding: 50px 0;
+}

@@ -4,25 +4,20 @@ namespace DNADesign\Rhino\Pagetypes;
 
 use DNADesign\Rhino\Control\SelfAssessmentController;
 use DNADesign\Rhino\Elements\ElementSelfAssessment;
-use DNADesign\Rhino\Fields\SelfAssessmentQuestion;
 use DNADesign\Rhino\Gridfield\GridfieldDownloadReportButton;
 use DNADesign\Rhino\Gridfield\GridFieldRequestDeleteTestData;
 use DNADesign\Rhino\Model\ResultTheme;
 use DNADesign\Rhino\Model\SelfAssessmentReport;
 use DNADesign\Rhino\Model\SelfAssessmentSubmission;
-use GraphQL\Error\Debug;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\Image;
 use SilverStripe\Control\Controller;
-use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\FieldGroup;
-use SilverStripe\Forms\Form;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldAddNewButton;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use SilverStripe\Forms\GridField\GridFieldEditButton;
 use SilverStripe\Forms\HTMLEditor\HTMLEditorField;
-use SilverStripe\Forms\LabelField;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\ToggleCompositeField;
@@ -30,8 +25,6 @@ use SilverStripe\UserForms\Form\GridFieldAddClassesButton;
 use SilverStripe\UserForms\Model\EditableFormField;
 use SilverStripe\UserForms\Model\EditableFormField\EditableFieldGroup;
 use SilverStripe\UserForms\Model\EditableFormField\EditableFormStep;
-use SilverStripe\UserForms\UserForm;
-use SilverStripe\View\ArrayData;
 use Symbiote\GridFieldExtensions\GridFieldOrderableRows;
 
 class SelfAssessment extends RhinoAssessment

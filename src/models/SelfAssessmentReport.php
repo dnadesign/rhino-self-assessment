@@ -6,7 +6,6 @@ use DNADesign\Rhino\Fields\SelfAssessmentQuestion;
 use DNADesign\Rhino\Pagetypes\SelfAssessment;
 use DNADesign\Rhino\Jobs\CreateSelfAssessmentReportJob;
 use SilverStripe\Assets\File;
-use SilverStripe\Assets\Folder;
 use SilverStripe\Control\Email\Email;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\DateField;

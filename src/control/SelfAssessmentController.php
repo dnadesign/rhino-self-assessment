@@ -2,24 +2,16 @@
 
 namespace DNADesign\Rhino\Control;
 
-use DNADesign\Elemental\Extensions\ElementalPageExtension;
-use DNADesign\Elemental\Models\ElementalArea;
-use DNADesign\Rhino\Elements\ElementSelfAssessment;
 use DNADesign\Rhino\Forms\RhinoUserForm;
 use DNADesign\Rhino\Model\SelfAssessmentSubmission;
-use PageController;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Email\Email;
-use SilverStripe\Control\HTTPRequest;
-use SilverStripe\Core\ClassInfo;
 use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\RequiredFields;
-use SilverStripe\Security\Security;
-use SilverStripe\View\ArrayData;
 use SilverStripe\View\Requirements;
 
 class SelfAssessmentController extends RhinoAssessmentController

@@ -5,6 +5,7 @@ namespace DNADesign\Rhino\Control;
 use DNADesign\Rhino\Forms\RhinoUserForm;
 use DNADesign\Rhino\Model\SelfAssessmentSubmission;
 use SilverStripe\Control\Controller;
+use SilverStripe\Control\Director;
 use SilverStripe\Control\Email\Email;
 use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\FieldList;
@@ -79,6 +80,8 @@ class SelfAssessmentController extends RhinoAssessmentController
 
         $form = new Form($this, 'EmailSignupForm', $fields, $actions, $required);
 
+        $this->extend('updateEmailSignupForm', $form);
+
         return $form;
     }
 
@@ -96,7 +99,13 @@ class SelfAssessmentController extends RhinoAssessmentController
                 $submission->write();
                 // Send email
                 $this->sendLinkViaEmail($submission, $email);
+                // Update
+                $this->extend('onAfterProcessEmailSignup', $email, $data, $submission);
                 // Redirect to result page with flag
+                if (Director::is_ajax()) {
+                    return true;
+                }
+
                 return $this->redirect(Controller::join_links($submission->getLink(), '?sent=1'));
             }
 
@@ -125,6 +134,8 @@ class SelfAssessmentController extends RhinoAssessmentController
         ];
 
         $email->setData($data);
+
+        $this->extend('onBeforeSendLinkViaEmail', $email, $submission, $emailAddress);
         $email->send();
     }
 

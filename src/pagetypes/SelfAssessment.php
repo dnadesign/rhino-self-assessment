@@ -55,15 +55,11 @@ class SelfAssessment extends RhinoAssessment
     ];
 
     private static $has_one = [
-        'Image' => Image::class,
-        'TopLogo' => Image::class,
-        'FooterLogo' => Image::class
+        'Image' => Image::class
     ];
 
     private static $owns = [
-        'Image',
-        'TopLogo',
-        'FooterLogo'
+        'Image'
     ];
 
     private static $has_many = [
@@ -232,7 +228,7 @@ class SelfAssessment extends RhinoAssessment
             $count += ($question->getHasTidbit()) ? 2 : 1;
         }
 
-        $this->extend('updateTotalStepCount', $count);
+        $this->extend('updateTotalStepCount', $count, $questions);
 
         return $count - 1;
     }

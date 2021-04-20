@@ -112,7 +112,15 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
 
     public function getIsLastQuestion()
     {
+        if (!$this->Parent()) {
+            return false;
+        }
+
         $fields = $this->Parent()->Fields()->column('ID');
+        if (count($fields) === 0) {
+            return false;
+        }
+
         return array_search($this->ID, $fields) === count($fields) - 1;
     }
 

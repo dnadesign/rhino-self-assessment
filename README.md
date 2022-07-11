@@ -59,3 +59,8 @@ You can block the css and javascript via config:
 	DNADesign\Rhino\Control\SelfAssessmentController
 	  include_default_javascript: false
 	  include_default_css: false
+	  
+## TODO:
+- Currenlty, a user can see the self assessment page, which will not display anything unless an element is added to it.
+Perhaps we can add a mechanism that would allow to redirect non-logged in users to the first page that has an element linking to the page (see v1)
+- Add list of pages linking to the self assessment page via an element on the self assessmnet page.

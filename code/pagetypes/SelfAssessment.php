@@ -18,6 +18,7 @@ class SelfAssessment extends RhinoAssessment {
 		'EstimatedTime' => 'Varchar(255)',
 		'ResultTitle' => 'VArchar(255)',
 		'ResultIntro' => 'HTMLText',
+		'ContactEmail' => 'Varchar(255)',
 		'ResultEmailText' => 'HTMLText',
 		'EmailModalTitle' => 'Varchar(255)',
 		'EmailModalContent' => 'HTMLText'
@@ -58,10 +59,12 @@ class SelfAssessment extends RhinoAssessment {
 		// Result Email
 		$modalTitle = TextField::create('EmailModalTitle');
 		$modalText = HTMLEditorField::create('EmailModalContent');
+		$fromEmail = TextField::create('ContactEmail', 'From Email')->setDescription('The email address that that self assesment results will be sent from.');
 		$resultEmailText = HTMLEditorField::create('ResultEmailText', 'Result Email Text');
 		$resultEmailText->setDescription('Content of the email sent alongside the link to the result page.');
 		$fields->addFieldsToTab('Root.ResultEmail', [
 			ToggleCompositeField::create('Regular', 'Content of the modal window', [$modalTitle, $modalText]),
+			$fromEmail,
 			$resultEmailText
 		]);
 

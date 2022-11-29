@@ -49,6 +49,7 @@ class SelfAssessment extends RhinoAssessment
         'EstimatedTime' => 'Varchar(255)',
         'ResultTitle' => 'Varchar(255)',
         'ResultIntro' => 'HTMLText',
+        'ContactEmail' => 'Varchar(255)',
         'ResultEmailText' => 'HTMLText',
         'EmailModalTitle' => 'Varchar(255)',
         'EmailModalContent' => 'HTMLText'
@@ -139,9 +140,12 @@ class SelfAssessment extends RhinoAssessment
         $modalText = HTMLEditorField::create('EmailModalContent');
         $resultEmailText = HTMLEditorField::create('ResultEmailText', 'Result Email Text');
         $resultEmailText->setDescription('Content of the email sent alongside the link to the result page.');
+        $fromEmail = TextField::create('ContactEmail', 'From Email');
+        $fromEmail->setDescription('The email address that that self assesment results will be sent from.');
         $fields->addFieldsToTab('Root.ResultEmail', [
             ToggleCompositeField::create('Regular', 'Content of the modal window', [$modalTitle, $modalText]),
-            $resultEmailText
+            $resultEmailText,
+            $fromEmail
         ]);
 
         // Reports
@@ -164,6 +168,17 @@ class SelfAssessment extends RhinoAssessment
         $config->addComponent(new GridFieldRequestDeleteTestData());
 
         return $fields;
+    }
+
+    public function validate()
+    {
+        $result = parent::validate();
+
+        if ($this->ContactEmail && !filter_var($this->ContactEmail, FILTER_VALIDATE_EMAIL)) {
+            $result->addError('From Email must be a valid email address');
+        }
+
+        return $result;
     }
 
     /**

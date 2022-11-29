@@ -123,7 +123,10 @@ class SelfAssessmentController extends RhinoAssessmentController
         $link = $submission->getLink();
 
         $email = new Email();
-        $email->setFrom($this->data()->ContactEmail);
+
+        if ($this->data()->ContactEmail) {
+            $email->setFrom($this->data()->ContactEmail);
+        }
         $email->setTo($emailAddress);
         $email->setSubject($this->data()->getResultPageTitle());
         $email->setHTMLTemplate('DNADesign\Rhino\SelfAssessmentResultsEmail');

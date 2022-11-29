@@ -170,6 +170,17 @@ class SelfAssessment extends RhinoAssessment
         return $fields;
     }
 
+    public function validate()
+    {
+        $result = parent::validate();
+
+        if ($this->ContactEmail && !filter_var($this->ContactEmail, FILTER_VALIDATE_EMAIL)) {
+            $result->addError('From Email must be a valid email address');
+        }
+
+        return $result;
+    }
+
     /**
      * Remove unwanted controls on the form field gridfield
      * and make sure that when adding a field, it's class is set properly

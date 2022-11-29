@@ -4,9 +4,12 @@ namespace DNADesign\Rhino\Control;
 
 use DNADesign\Rhino\Forms\RhinoUserForm;
 use DNADesign\Rhino\Model\SelfAssessmentSubmission;
+use Exception;
+use Psr\Log\LoggerInterface;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\Email\Email;
+use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
@@ -120,26 +123,31 @@ class SelfAssessmentController extends RhinoAssessmentController
      */
     private function sendLinkViaEmail($submission, $emailAddress)
     {
-        $link = $submission->getLink();
+        try {
+            $link = $submission->getLink();
 
-        $email = new Email();
+            $email = new Email();
 
-        if ($this->data()->ContactEmail) {
-            $email->setFrom($this->data()->ContactEmail);
+            $fromEmail = $this->data()->ContactEmail;
+            if ($fromEmail && filter_var($fromEmail, FILTER_VALIDATE_EMAIL)) {
+                $email->setFrom($this->data()->ContactEmail);
+            }
+            $email->setTo($emailAddress);
+            $email->setSubject($this->data()->getResultPageTitle());
+            $email->setHTMLTemplate('DNADesign\Rhino\SelfAssessmentResultsEmail');
+
+            $data = [
+                'Link' => $link,
+                'Text' => $this->data()->ResultEmailText
+            ];
+
+            $email->setData($data);
+
+            $this->extend('onBeforeSendLinkViaEmail', $email, $submission, $emailAddress);
+            $email->send();
+        } catch (Exception $e) {
+            Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
         }
-        $email->setTo($emailAddress);
-        $email->setSubject($this->data()->getResultPageTitle());
-        $email->setHTMLTemplate('DNADesign\Rhino\SelfAssessmentResultsEmail');
-
-        $data = [
-            'Link' => $link,
-            'Text' => $this->data()->ResultEmailText
-        ];
-
-        $email->setData($data);
-
-        $this->extend('onBeforeSendLinkViaEmail', $email, $submission, $emailAddress);
-        $email->send();
     }
 
     /**

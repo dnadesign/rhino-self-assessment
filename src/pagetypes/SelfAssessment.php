@@ -79,6 +79,19 @@ class SelfAssessment extends RhinoAssessment
 
     public function getCMSFields()
     {
+        $this->beforeUpdateCMSFields(function ($fields) {
+            // Reports
+            $report_config = GridFieldConfig_RecordEditor::create();
+            $report_config->addComponent(new GridfieldDownloadReportButton());
+            $add = $report_config->getComponentByType(GridFieldAddNewButton::class);
+
+            $add->setButtonName('Request New Report');
+
+            $report_config->removeComponentsByType(GridFieldEditButton::class);
+            $reports = GridField::create('Reports', 'Reports', $this->Reports(), $report_config);
+            $fields->addFieldToTab('Root.Reports', $reports);
+        });
+
         $fields = parent::getCMSFields();
 
         // Clean up
@@ -147,17 +160,6 @@ class SelfAssessment extends RhinoAssessment
             $resultEmailText,
             $fromEmail
         ]);
-
-        // Reports
-        $report_config = GridFieldConfig_RecordEditor::create();
-        $report_config->addComponent(new GridfieldDownloadReportButton());
-        $add = $report_config->getComponentByType(GridFieldAddNewButton::class);
-
-        $add->setButtonName('Request New Report');
-
-        $report_config->removeComponentsByType(GridFieldEditButton::class);
-        $reports = GridField::create('Reports', 'Reports', $this->Reports(), $report_config);
-        $fields->addFieldToTab('Root.Reports', $reports);
 
         $content->setRows(20);
         $resultIntro->setRows(25);

@@ -8,9 +8,9 @@
 		"api"
 	],
 	"require": {
-		"silverstripe/framework": "^4",
-		"dnadesign/silverstripe-elemental": "^4",
-		"symbiote/silverstripe-queuedjobs": "^4",
+		"silverstripe/framework": "^4 || ^5",
+		"dnadesign/silverstripe-elemental": "^5",
+		"symbiote/silverstripe-queuedjobs": "^5",
 		"parsecsv/php-parsecsv": "^1.1"		
 	},
 	"extra": {

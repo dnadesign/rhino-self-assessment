@@ -3,14 +3,15 @@
 namespace DNADesign\Rhino\Model;
 
 use DNADesign\Rhino\Fields\SelfAssessmentQuestion;
-use DNADesign\Rhino\Pagetypes\SelfAssessment;
 use DNADesign\Rhino\Jobs\CreateSelfAssessmentReportJob;
+use DNADesign\Rhino\Pagetypes\SelfAssessment;
 use SilverStripe\Assets\File;
 use SilverStripe\Control\Email\Email;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\DateField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
+use SilverStripe\Security\Security;
 use SilverStripe\UserForms\Model\Submission\SubmittedFormField;
 use Symbiote\QueuedJobs\Services\QueuedJobService;
 
@@ -56,13 +57,15 @@ class SelfAssessmentReport extends DataObject
     {
         $fields = parent::getCMSFields();
 
-        $fields->removeByName([
+        $fields->removeByName(
+            [
             'Status',
             'Completed',
             'SubmissionCount',
             'RequestedByID',
             'File'
-        ]);
+            ]
+        );
 
         $from = DateField::create('SubmissionFrom');
         $from->setHTML5(true);
@@ -103,7 +106,7 @@ class SelfAssessmentReport extends DataObject
         }
 
         if (!$this->RequestedByID) {
-            $this->RequestedByID = Member::currentUserID();
+            $this->RequestedByID = Security::getCurrentUser()->ID;
         }
     }
 
@@ -131,15 +134,19 @@ class SelfAssessmentReport extends DataObject
 
             // Filter the requested date
             if ($this->SubmissionFrom) {
-                $submissions = $submissions->filter([
+                $submissions = $submissions->filter(
+                    [
                     'Created:GreaterThan' => sprintf('%s 00:00:00', $this->dbObject('SubmissionFrom')->format('y-MM-dd'))
-                ]);
+                    ]
+                );
             }
 
             if ($this->SubmissionTo) {
-                $submissions = $submissions->filter([
+                $submissions = $submissions->filter(
+                    [
                     'Created:LessThan' => sprintf('%s 23:59:59', $this->dbObject('SubmissionTo')->format('y-MM-dd'))
-                ]);
+                    ]
+                );
             }
 
             // Include test data
@@ -161,10 +168,12 @@ class SelfAssessmentReport extends DataObject
             $submissions = $this->getSubmissions();
 
             if ($submissions->exists()) {
-                $fields = SubmittedFormField::get()->filter([
+                $fields = SubmittedFormField::get()->filter(
+                    [
                     'Name' => $fieldToReportOn->column('Name'),
                     'ParentID' => $submissions->column('ID')
-                ]);
+                    ]
+                );
 
                 return $fields;
             }
@@ -212,11 +221,13 @@ class SelfAssessmentReport extends DataObject
         $email->setFrom($fromEmail);
         $email->setTo($to);
         $email->setSubject($subject);
-        $email->setBody(sprintf(
-            'The report for %s is ready. <a href="%s">Click here</a> to download it.',
-            $this->Assessment()->Title,
-            $this->File()->AbsoluteLink()
-        ));
+        $email->setBody(
+            sprintf(
+                'The report for %s is ready. <a href="%s">Click here</a> to download it.',
+                $this->Assessment()->Title,
+                $this->File()->AbsoluteLink()
+            )
+        );
 
         $email->send();
     }

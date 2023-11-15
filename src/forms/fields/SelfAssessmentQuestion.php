@@ -7,7 +7,9 @@ use DNADesign\Rhino\Fields\EditableSelfAssessmentOption;
 use DNADesign\Rhino\Model\ResultTheme;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\File;
+use SilverStripe\Forms\CompositeValidator;
 use SilverStripe\Forms\HTMLEditor\HTMLEditorField;
+use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Forms\TextField;
 
 class SelfAssessmentQuestion extends EditableMultiChoiceField
@@ -49,7 +51,8 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
     {
         $fields = parent::getCMSFields();
 
-        $fields->removeByName([
+        $fields->removeByName(
+            [
             'RightTitle',
             'ExtraClass',
             'DisplayRules',
@@ -58,7 +61,8 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
             'warning',
             'Validation',
             'Questions'
-        ]);
+            ]
+        );
 
         $tidbitTitle = TextField::create('TidbitTitle')->setRightTitle('eg: Did you know...');
         $tidbit = HTMLEditorField::create('Tidbit', 'Tidbit');
@@ -79,10 +83,11 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
      * A question without a question is not a question
      * so make title required
      */
-    public function getCMSValidator()
+    public function getCMSCompositeValidator() : CompositeValidator
     {
-        $validator = parent::getCMSValidator();
-        $validator->addRequiredField('Title');
+        $validator = parent::getCMSCompositeValidator();
+
+        $validator->addValidator(new RequiredFields(['Title']));
 
         return $validator;
     }
@@ -94,7 +99,8 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
         $field->setFieldHolderTemplate('DNADesign\Rhino\Fields\SelfAssessmentQuestion_holder');
         $field->setTemplate('DNADesign\Rhino\Fields\SelfAssessmentQuestion');
 
-        $field->customise([
+        $field->customise(
+            [
             'Image' => $this->Image(),
             'TidbitTitle' => $this->TidbitTitle,
             'Tidbit' => $this->dbObject('Tidbit'),
@@ -103,7 +109,8 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
             'Options' => $this->Options(),
             'Last' => $this->getIsLastQuestion(),
             'HasTidbit' => $this->getHasTidbit()
-        ]);
+            ]
+        );
 
         $this->extend('updateFormField', $field);
 

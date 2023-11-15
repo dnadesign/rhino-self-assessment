@@ -3,6 +3,7 @@
 namespace DNADesign\Rhino\Fields;
 
 use DNADesign\Rhino\Fields\EditableMultiChoiceOption;
+use SilverStripe\Forms\CompositeValidator;
 use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\RequiredFields;
 
@@ -36,8 +37,12 @@ class EditableSelfAssessmentOption extends EditableMultiChoiceOption
         return $fields;
     }
 
-    public function getCMSValidator()
+    public function getCMSCompositeValidator() : CompositeValidator
     {
-        return new RequiredFields(['Value', 'Rating']);
+        $validator = parent::getCMSCompositeValidator();
+
+        $validator->addValidator(new RequiredFields(['Value', 'Rating']));
+
+        return $validator;
     }
 }

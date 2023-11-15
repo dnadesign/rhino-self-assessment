@@ -3,10 +3,10 @@
 SilverStripe module making use of Rhino (rhino-lite and rhino-fields) to scaffold a quiz.
 
 ## Install
-	"dnadesign/rhino-self-assessment": "^2"
+	"dnadesign/rhino-self-assessment": "^3"
 
 ## Dependencies
-	"silverstripe/framework": "^4"
+	"silverstripe/framework": "^5"
 	"dnadesign/silverstripe-elemental": "^4"
 	"symbiote/silverstripe-queuedjobs": "^4"
 	"parsecsv/php-parsecsv": "^1.1"
@@ -14,8 +14,8 @@ SilverStripe module making use of Rhino (rhino-lite and rhino-fields) to scaffol
 Note: at this stage the DNA Design are not on Packagist, so need ot be required manually in the project via vcs
 
 	"require": {
-        "dnadesign/rhino-fields": "^2.0",
-        "dnadesign/rhino-lite": "^2.0",
+        "dnadesign/rhino-fields": "^3.0",
+        "dnadesign/rhino-lite": "^3.0",
     },
     "repositories": [
         {

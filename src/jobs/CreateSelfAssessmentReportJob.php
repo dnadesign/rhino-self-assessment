@@ -6,9 +6,11 @@ use DNADesign\Rhino\Model\SelfAssessmentReport;
 use ParseCsv\Csv;
 use SilverStripe\Assets\File;
 use SilverStripe\Assets\Folder;
+use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\UserForms\Model\Submission\SubmittedFormField;
+use Symbiote\QueuedJobs\DataObjects\QueuedJobDescriptor;
 use Symbiote\QueuedJobs\Services\AbstractQueuedJob;
 use Symbiote\QueuedJobs\Services\QueuedJob;
 
@@ -40,11 +42,13 @@ class CreateSelfAssessmentReportJob extends AbstractQueuedJob implements QueuedJ
     {
         $report = $this->getReport();
         if ($report && $report->exists() && $report->Assessment() && $report->Assessment()->exists()) {
-            return sprintf('Create "%s" report from %s to %s (%s test data)',
+            return sprintf(
+                'Create "%s" report from %s to %s (%s test data)',
                 $report->Assessment()->Title,
                 $report->dbObject('SubmissionFrom')->Format('y-MM-dd'),
                 $report->dbObject('SubmissionTo')->Format('y-MM-dd'),
-                ($report->IncludeTestData) ? 'includes' : 'excludes');
+                ($report->IncludeTestData) ? 'includes' : 'excludes'
+            );
         }
 
         return 'Cannot find the assemment to report on!';
@@ -71,11 +75,11 @@ class CreateSelfAssessmentReportJob extends AbstractQueuedJob implements QueuedJ
     }
 
      /**
-     * By default the job descriptor is only ever updated when process() is
-     * finished, so for long running single tasks the user see's no process.
-     *
-     * This method manually updates the count values on the QueuedJobDescriptor
-     */
+      * By default the job descriptor is only ever updated when process() is
+      * finished, so for long running single tasks the user see's no process.
+      *
+      * This method manually updates the count values on the QueuedJobDescriptor
+      */
     public function updateJobDescriptor()
     {
         if (!$this->descriptor && $this->jobDescriptorId) {

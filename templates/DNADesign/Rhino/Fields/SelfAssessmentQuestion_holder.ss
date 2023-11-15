@@ -8,7 +8,7 @@
 		<h2 class="self-assessment-question-title">$Title</h2>
 		<div class="self-assessment-question-options">
 			$Field
-			<% if $Last && not $Tidbit %>
+			<% if $IsLast && not $Tidbit %>
 				<button type="submit" class="self-assessment-button self-assessment-button--results" data-action="submit">
 					<% if $Top.Controller.SubmitButtonText %>
 						$Top.Controller.SubmitButtonText
@@ -41,7 +41,7 @@
 				$Tidbit
 			</div>						
 			
-			<% if not $Last %>
+			<% if not $IsLast %>
 				<button type="button" class="self-assessment-button self-assessment-button--next" data-action="next">Next</button>
 			<% else %>
 				<button type="submit" class="self-assessment-button self-assessment-button--results" data-action="submit">

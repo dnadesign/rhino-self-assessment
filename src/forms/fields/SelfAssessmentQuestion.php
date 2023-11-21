@@ -108,7 +108,8 @@ class SelfAssessmentQuestion extends EditableMultiChoiceField
             'ResultTheme' => $this->ResultTheme(),
             'Options' => $this->Options(),
             'Last' => $this->getIsLastQuestion(),
-            'HasTidbit' => $this->getHasTidbit()
+            'HasTidbit' => $this->getHasTidbit(),
+            'Title' => $this->Title
             ]
         );
 
